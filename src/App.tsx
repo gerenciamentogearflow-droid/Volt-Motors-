@@ -18,7 +18,11 @@ import {
   Layers,
   Sparkles,
   UserPlus,
-  Trash2
+  Trash2,
+  Smartphone,
+  Download,
+  Share2,
+  Chrome
 } from "lucide-react";
 import DevDashboard from "./components/DevDashboard";
 import OwnerDashboard from "./components/OwnerDashboard";
@@ -49,6 +53,52 @@ export default function App() {
       setRememberMe(true);
     }
   }, []);
+
+  // --- DETECTOR DE PWA / MODO NATIVO ---
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState<boolean>(false);
+  const [isAndroid, setIsAndroid] = useState<boolean>(false);
+  const [isIOS, setIsIOS] = useState<boolean>(false);
+
+  useEffect(() => {
+    // 1. Verificar se já está rodando em modo aplicativo independente (standalone)
+    const checkStandalone = () => {
+      const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone === true;
+      setIsStandalone(isStandaloneMode);
+    };
+    checkStandalone();
+
+    // 2. Detectar Sistema Operacional
+    const ua = navigator.userAgent;
+    setIsAndroid(/Android/i.test(ua));
+    setIsIOS(/iPhone|iPad|iPod/i.test(ua));
+
+    // 3. Capturar o evento de instalação do Chrome/Android PWA
+    const handleBeforeInstall = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    
+    // Monitorar mudança de modo de exibição
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    mediaQuery.addEventListener('change', checkStandalone);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      mediaQuery.removeEventListener('change', checkStandalone);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
   
   // States para fluxos e validações
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -562,6 +612,63 @@ export default function App() {
                   )}
                 </button>
               </form>
+
+              {/* DETALHES DE INSTALAÇÃO DO APP NATIVO (Disponível quando acessado como Site) */}
+              {!isStandalone && (
+                <div className="mt-8 pt-6 border-t border-stone-100 max-w-sm mx-auto w-full text-left space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Smartphone className="w-4 h-4 text-amber-600 animate-pulse" />
+                    <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-widest">
+                      Instalar Aplicativo Oficial
+                    </span>
+                  </div>
+
+                  <div className="bg-stone-50 rounded-2xl border border-stone-200/60 p-4 space-y-3">
+                    <p className="text-xs text-stone-600 leading-relaxed font-sans">
+                      Para remover a barra superior do Google Chrome e usar o <strong>Volt Motors</strong> como um aplicativo nativo em seu celular:
+                    </p>
+
+                    {/* Caso detectado Android com Install Prompt ativo */}
+                    {deferredPrompt ? (
+                      <button
+                        onClick={handleInstallClick}
+                        className="w-full bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold py-2.5 px-4 rounded-xl text-[11px] uppercase tracking-wider flex items-center justify-center space-x-2 transition-all shadow-sm cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Instalar no Celular</span>
+                      </button>
+                    ) : (
+                      <div className="text-[11px] text-stone-500 space-y-2 font-sans">
+                        {isIOS ? (
+                          <div className="space-y-1.5 bg-white p-3 rounded-xl border border-stone-100">
+                            <div className="font-semibold text-stone-700 flex items-center gap-1.5">
+                              <Share2 className="w-3.5 h-3.5 text-stone-500" />
+                              No iPhone (Safari):
+                            </div>
+                            <ol className="list-decimal list-inside pl-1 space-y-1 text-stone-600">
+                              <li>Toque no botão de <strong>Compartilhar</strong> (ícone de seta p/ cima).</li>
+                              <li>Selecione <strong>"Adicionar à Tela de Início"</strong>.</li>
+                              <li>Abra o aplicativo pelo novo ícone na sua Home!</li>
+                            </ol>
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5 bg-white p-3 rounded-xl border border-stone-100 font-sans">
+                            <div className="font-semibold text-stone-700 flex items-center gap-1.5">
+                              <Chrome className="w-3.5 h-3.5 text-stone-500" />
+                              No Android (Google Chrome):
+                            </div>
+                            <ul className="list-disc list-inside pl-1 space-y-1 text-stone-600">
+                              <li>Toque nos <strong>3 pontos</strong> no canto superior direito do Chrome.</li>
+                              <li>Toque em <strong className="text-stone-850">"Instalar aplicativo"</strong> ou <strong className="text-stone-850">"Adicionar à tela de início"</strong>.</li>
+                              <li>Abra o Volt Motors pelo novo ícone e use como App Nativo!</li>
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         ) : loggedInUser.isDev ? (
