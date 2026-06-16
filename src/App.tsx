@@ -455,14 +455,16 @@ export default function App() {
                   className="absolute inset-0 bg-stone-900/5 blur-[50px] rounded-full scale-50 z-0"
                 />
 
-                {/* Logo original redonda e intacta */}
-                <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 rounded-full overflow-hidden flex items-center justify-center border border-stone-200/50 shadow-[0_10px_45px_rgba(0,0,0,0.06)] bg-white">
-                  <img
-                    src={activeLogo}
-                    alt="Volt Motors Logo"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover scale-[1.03]"
-                  />
+                {/* Logo original redonda e intacta substituída por escrita elegante e robusta */}
+                <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 rounded-full flex flex-col items-center justify-center border border-stone-200/50 shadow-[0_10px_45px_rgba(0,0,0,0.06)] bg-white select-none">
+                  <div className="flex flex-col items-center leading-none">
+                    <span className="font-display italic font-black text-5xl tracking-tighter text-stone-950">
+                      Volt
+                    </span>
+                    <span className="font-display text-[10px] tracking-[0.55em] text-stone-500 uppercase font-black mr-[-0.55em] mt-1.5">
+                      MOTORS
+                    </span>
+                  </div>
                 </div>
               </div>
 
