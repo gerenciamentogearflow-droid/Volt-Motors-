@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System users",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "branchName": { "type": "string" },
+        "isDev": { "type": "boolean" }
+      },
+      "required": ["email", "name", "role", "branchName"]
+    },
+    "AppConfig": {
+      "title": "Application Configuration",
+      "description": "App-level configuration",
+      "type": "object",
+      "properties": {
+        "logoUrl": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "config/app": {
+      "schema": "AppConfig",
+      "description": "App configuration"
+    }
+  }
+}

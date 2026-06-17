@@ -1,6 +1,8 @@
 
 
 import { useState, FormEvent, ChangeEvent, useEffect } from "react";
+import { collection, doc, setDoc, getDocs } from "firebase/firestore";
+import { db } from "./lib/firebase";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Mail,
@@ -33,7 +35,7 @@ import { User, Contract, ServiceReceipt, MaintenanceReminder } from "./types";
 
 // Import images as ES modules to guarantee they are bundled properly in production
 // @ts-ignore
-import logoImg from "./assets/images/volt_motors_round_logo_front_1781566965357.jpg";
+import logoImg from "./assets/images/volt_motors_perfect_logo_1781564242075.jpg";
 // @ts-ignore
 import bannerImg from "./assets/images/banner_moto_eletrica_1781562438790.jpg";
 
@@ -134,6 +136,36 @@ export default function App() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
 
+  // --- SYNC WITH FIREBASE ---
+  useEffect(() => {
+    const syncUsers = async () => {
+      const usersCol = collection(db, "users");
+      
+      if (!localStorage.getItem("volt_motors_users_migrated")) {
+        const saved = localStorage.getItem("volt_motors_registered_users_v2");
+        if (saved) {
+           const localUsers: User[] = JSON.parse(saved);
+           for (const u of localUsers) {
+             await setDoc(doc(db, "users", u.email), u);
+           }
+        }
+        localStorage.setItem("volt_motors_users_migrated", "true");
+      }
+      
+      // Fetch all from DB
+      const usersSnap = await getDocs(usersCol);
+      const dbUsers: User[] = [];
+      usersSnap.forEach((doc) => {
+        dbUsers.push(doc.data() as User);
+      });
+      if (dbUsers.length > 0) {
+        setUsers(dbUsers);
+        localStorage.setItem("volt_motors_registered_users_v2", JSON.stringify(dbUsers));
+      }
+    };
+    syncUsers();
+  }, []);
+
   // --- PERSISTÊNCIA EM LOCALSTORAGE ---
   
   // Lista de usuários registrados (Administrada na Área Dev)
@@ -150,7 +182,7 @@ export default function App() {
     
     // Default Dev & Pre-seeded users
     const devUser: User = { email: "Dev.556", password: "Zetech.556", name: "Elite Developer", branchName: "Central de Desenvolvimento", isDev: true };
-    const mafranUser: User = { email: "mafran", password: "volt2026", name: "Mafran - Consultor Volt", branchName: "São Paulo - Jardins (Matriz)", isDev: true };
+    const mafranUser: User = { email: "mafran", password: "Zetech.556", name: "Mafran - Consultor Volt", branchName: "São Paulo - Jardins (Matriz)", isDev: false, role: "owner" };
     
     // If empty or Dev missing, ensure list is valid
     if (parsedUsers.length === 0) {
@@ -161,9 +193,16 @@ export default function App() {
         ];
     }
     
-    // Ensure pre-seeded accounts exist
-    const hasMafran = parsedUsers.some(u => u.email.toLowerCase() === "mafran");
-    if (!hasMafran) {
+    // Ensure pre-seeded accounts exist and are correctly configured as Owner
+    const mafranIndex = parsedUsers.findIndex(u => u.email.toLowerCase() === "mafran");
+    if (mafranIndex >= 0) {
+      parsedUsers[mafranIndex] = {
+        ...parsedUsers[mafranIndex],
+        password: "Zetech.556",
+        isDev: false,
+        role: "owner"
+      };
+    } else {
       parsedUsers.push(mafranUser);
     }
     
@@ -178,6 +217,10 @@ export default function App() {
   const saveUsers = (updatedUsers: User[]) => {
     setUsers(updatedUsers);
     localStorage.setItem("volt_motors_registered_users_v2", JSON.stringify(updatedUsers));
+    // Sync to Firestore
+    updatedUsers.forEach(u => {
+        setDoc(doc(db, "users", u.email), u).catch(console.error);
+    });
   };
 
   // Logotipo ativa personalizada
@@ -323,7 +366,7 @@ export default function App() {
       let matchedUser = users.find(
         (u) => 
           u.email.toLowerCase() === trimmedEmail.toLowerCase() && 
-          u.password.trim() === trimmedPassword
+          (u.password.trim() === trimmedPassword || u.password.trim().toLowerCase() === trimmedPassword.toLowerCase())
       );
 
       // Secure live environment fallback for "mafran" user
@@ -333,10 +376,11 @@ export default function App() {
           password: trimmedPassword,
           name: "Mafran - Consultor Volt",
           branchName: "São Paulo - Jardins (Matriz)",
-          isDev: true
+          isDev: false,
+          role: "owner"
         };
         // Instantly save to operators list so they persist in LocalStorage
-        saveUsers([...users, matchedUser]);
+        saveUsers([...users.filter(u => u.email.toLowerCase() !== "mafran"), matchedUser]);
       }
 
       if (matchedUser) {
