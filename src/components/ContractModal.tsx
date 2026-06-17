@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, Calendar, FileText, CheckCircle, ShieldCheck, Printer, ArrowLeft, Trash2, Key, Award, Share2, Loader, Eye, Maximize2, Minimize2, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import html2canvas from "html2canvas-pro";
+import domtoimage from "dom-to-image-more";
 import { jsPDF } from "jspdf";
 import { Contract, MaintenanceReminder } from "../types";
 
@@ -541,46 +541,23 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
         throw new Error("Elementos de visualização do contrato não foram localizados.");
       }
 
+      const scale = 1.8;
       const options = {
-        scale: 1.5, // Reduced for mobile memory safety
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        windowWidth: 794, 
-        onclone: (clonedDoc: Document) => {
-          // 1. Reset scale / transform styling of parent document so html2canvas computes original A4 dimensions flawlessly
-          const parentElementClone = clonedDoc.getElementById(elementId);
-          if (parentElementClone) {
-            parentElementClone.style.transform = "none";
-            parentElementClone.style.width = "794px";
-            parentElementClone.style.height = "auto";
-            parentElementClone.style.display = "flex";
-            parentElementClone.style.flexDirection = "column";
-            parentElementClone.style.gap = "0px";
-            parentElementClone.style.transformOrigin = "top left";
-          }
-
-          // Force page elements inside the clone to be visible, fully unscaled, and static
-          const p1Clone = clonedDoc.getElementById(`${elementId}-page1`);
-          const p2Clone = clonedDoc.getElementById(`${elementId}-page2`);
-          if (p1Clone) {
-            p1Clone.style.transform = "none";
-            p1Clone.style.position = "relative";
-            p1Clone.style.boxSizing = "border-box";
-          }
-          if (p2Clone) {
-            p2Clone.style.transform = "none";
-            p2Clone.style.position = "relative";
-            p2Clone.style.boxSizing = "border-box";
-          }
-        }
+        bgcolor: "#ffffff",
+        width: 794,
+        height: 1123,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          width: '794px',
+          height: '1123px'
+        },
+        width: 794 * scale,
+        height: 1123 * scale,
       };
 
-      const canvas1 = await html2canvas(p1Element, options);
-      const canvas2 = await html2canvas(p2Element, options);
-
-      const imgData1 = canvas1.toDataURL("image/png");
-      const imgData2 = canvas2.toDataURL("image/png");
+      const imgData1 = await domtoimage.toPng(p1Element, options);
+      const imgData2 = await domtoimage.toPng(p2Element, options);
 
       const imgWidth = 210; // A4 width in mm
       const pageHeight = 297; // Standard A4 height in mm
