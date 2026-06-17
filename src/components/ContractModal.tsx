@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, Calendar, FileText, CheckCircle, ShieldCheck, Printer, ArrowLeft, Trash2, Key, Award, Share2, Loader, Eye, Maximize2, Minimize2, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
 import { Contract, MaintenanceReminder } from "../types";
 
@@ -572,63 +572,6 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
             p2Clone.style.transform = "none";
             p2Clone.style.position = "relative";
             p2Clone.style.boxSizing = "border-box";
-          }
-
-          // 2. Fix for html2canvas not supporting oklch colors (common in Tailwind v4)
-          // Parse any oklch(...) declaration, extract the lightness value 'L', and convert it to its hex grayscale representation
-          const mapOklchToHex = (match: string, inner: string) => {
-            try {
-              // Split inner by spaces, slashes, or commas to extract lightness value
-              const parts = inner.trim().split(/[\s/]+/);
-              if (parts.length >= 1) {
-                let lVal = parts[0];
-                let l = 0;
-                if (lVal.endsWith("%")) {
-                  l = parseFloat(lVal) / 100;
-                } else {
-                  l = parseFloat(lVal);
-                }
-                if (!isNaN(l)) {
-                  // Clamp L between 0 and 1
-                  l = Math.max(0, Math.min(1, l));
-                  let value = Math.round(l * 255);
-                  // Ensure background/foreground high contrasts are preserved and don't muddy down
-                  if (l > 0.85) {
-                    value = 255; // White backgrounds stay white
-                  } else if (l < 0.2) {
-                    value = 28; // Deep colors stay dark charcoal #1c1917
-                  }
-                  const hex = value.toString(16).padStart(2, '0');
-                  return `#${hex}${hex}${hex}`;
-                }
-              }
-            } catch (e) {
-              console.error("Error converting oklch value:", e);
-            }
-            return "#78716c"; // Fallback stone-500
-          };
-
-          const styleTags = clonedDoc.getElementsByTagName("style");
-          for (let i = 0; i < styleTags.length; i++) {
-            try {
-              let cssText = styleTags[i].innerHTML;
-              if (cssText.toLowerCase().includes("oklch")) {
-                cssText = cssText.replace(/oklch\s*\(([^)]+)\)/gi, (m, inner) => mapOklchToHex(m, inner));
-                styleTags[i].innerHTML = cssText;
-              }
-            } catch (err) {
-              console.error("Error processing style tag in clone:", err);
-            }
-          }
-
-          const allClonedElements = clonedDoc.getElementsByTagName("*");
-          for (let i = 0; i < allClonedElements.length; i++) {
-            const el = allClonedElements[i] as HTMLElement;
-            const inlineStyle = el.getAttribute("style");
-            if (inlineStyle && inlineStyle.toLowerCase().includes("oklch")) {
-              const fixedStyle = inlineStyle.replace(/oklch\s*\(([^)]+)\)/gi, (m, inner) => mapOklchToHex(m, inner));
-              el.setAttribute("style", fixedStyle);
-            }
           }
         }
       };
