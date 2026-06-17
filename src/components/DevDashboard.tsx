@@ -2,6 +2,8 @@ import React, { useState, ChangeEvent } from "react";
 import { LogOut, UserPlus, Trash2, Users, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { User } from "../types";
+import { setDoc, doc } from "firebase/firestore";
+import { db, handleFirestoreError, OperationType } from "../lib/firebase";
 
 interface DevDashboardProps {
   handleLogout: () => void;
@@ -22,9 +24,31 @@ export default function DevDashboard({
   const [newUserRole, setNewUserRole] = useState<'owner' | 'seller'>('seller');
   const [showAddForm, setShowAddForm] = useState(false);
   const [showUsersList, setShowUsersList] = useState(false);
+  const [showLogoForm, setShowLogoForm] = useState(false);
   
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [deletePassword, setDeletePassword] = useState("");
+
+  const handleLogoUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("A imagem deve ter no máximo 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+        try {
+          await setDoc(doc(db, "settings", "logo"), { url: base64String });
+          alert("Logotipo atualizado com sucesso para todos os usuários!");
+        } catch (error) {
+          handleFirestoreError(error, OperationType.WRITE, "settings/logo");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleCreateUser = (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,6 +218,40 @@ export default function DevDashboard({
                       ))}
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* FOLDER: CONFIGURAÇÕES DA MARCA */}
+          <div className="bg-stone-50 border border-stone-200 rounded-3xl overflow-hidden shadow-sm mt-4">
+            <button
+               onClick={() => setShowLogoForm(!showLogoForm)}
+               className="w-full p-6 flex items-center justify-between hover:bg-stone-100 transition-all cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-4">
+                 <div className="p-3 bg-stone-900 rounded-full border border-stone-950 text-white">
+                    <ImageIcon className="w-5 h-5" />
+                 </div>
+                 <div>
+                    <h2 className="text-sm font-mono text-stone-900 uppercase tracking-widest font-bold">Alterar Logotipo da Empresa</h2>
+                    <p className="text-xs text-stone-500 font-semibold mt-1">Carregar logotipo. Salva e sincroniza em todos os dispositivos.</p>
+                 </div>
+              </div>
+              <div className="text-stone-400 font-bold">{showLogoForm ? '▼' : '▶'}</div>
+            </button>
+            {showLogoForm && (
+              <div className="p-5 pt-0 border-t border-stone-200/80 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="pt-4 space-y-4">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-mono text-stone-500 uppercase ml-1 font-bold">Upload de nova logotipo (Máx 2MB)</label>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleLogoUpload} 
+                      className="w-full bg-white text-stone-900 border border-stone-200 rounded-2xl px-4 py-4 text-sm focus:border-stone-500/50 outline-none transition-all cursor-pointer file:cursor-pointer file:bg-stone-900 file:text-white file:border-0 file:rounded-xl file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:mr-4 hover:file:bg-stone-800"
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>

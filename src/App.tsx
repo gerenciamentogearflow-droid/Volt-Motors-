@@ -229,7 +229,27 @@ export default function App() {
   };
 
   // Definitve Logo
-  const activeLogo = "/logo.jpg";
+  const [activeLogo, setActiveLogo] = useState<string>("");
+
+  // --- SYNC WITH FIREBASE (LOGO) ---
+  useEffect(() => {
+    // Sync Logo em tempo real usando onSnapshot
+    import("firebase/firestore").then(({ doc, onSnapshot }) => {
+      const logoDocRef = doc(db, "settings", "logo");
+      const unsubscribeLogo = onSnapshot(logoDocRef, (logoSnap) => {
+        if (logoSnap.exists()) {
+          const data = logoSnap.data();
+          if (data.url) {
+            setActiveLogo(data.url);
+          }
+        }
+      }, (error) => {
+        console.error("Erro ao escutar mudanças da logo:", error);
+      });
+      
+      return () => unsubscribeLogo();
+    });
+  }, []);
 
   // --- SYNC FAVICON AND APP ICON WITH LOGO ---
   useEffect(() => {
@@ -625,6 +645,7 @@ export default function App() {
                       alt="Volt Motors Logo"
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
+                      onError={() => setActiveLogo("")}
                     />
                   </div>
                 ) : (
