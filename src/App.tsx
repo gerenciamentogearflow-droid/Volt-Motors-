@@ -33,7 +33,7 @@ import { User, Contract, ServiceReceipt, MaintenanceReminder } from "./types";
 
 // Import images as ES modules to guarantee they are bundled properly in production
 // @ts-ignore
-import logoImg from "./assets/images/volt_motors_perfect_logo_1781564242075.jpg";
+import logoImg from "./assets/images/volt_motors_round_logo_front_1781566965357.jpg";
 // @ts-ignore
 import bannerImg from "./assets/images/banner_moto_eletrica_1781562438790.jpg";
 
@@ -148,19 +148,28 @@ export default function App() {
       }
     }
     
-    // Default DEV user
+    // Default Dev & Pre-seeded users
     const devUser: User = { email: "Dev.556", password: "Zetech.556", name: "Elite Developer", branchName: "Central de Desenvolvimento", isDev: true };
+    const mafranUser: User = { email: "mafran", password: "volt2026", name: "Mafran - Consultor Volt", branchName: "São Paulo - Jardins (Matriz)", isDev: true };
     
     // If empty or Dev missing, ensure list is valid
     if (parsedUsers.length === 0) {
         return [
           { email: "vendas@voltmotors.com.br", password: "volt2026", name: "Consultor de Vendas Volt", branchName: "São Paulo - Jardins (Matriz)", isDev: false },
+          mafranUser,
           devUser
         ];
     }
     
-    if (!parsedUsers.some(u => u.email === "Dev.556")) {
-        return [...parsedUsers, devUser];
+    // Ensure pre-seeded accounts exist
+    const hasMafran = parsedUsers.some(u => u.email.toLowerCase() === "mafran");
+    if (!hasMafran) {
+      parsedUsers.push(mafranUser);
+    }
+    
+    const hasDev = parsedUsers.some(u => u.email === "Dev.556");
+    if (!hasDev) {
+      parsedUsers.push(devUser);
     }
     
     return parsedUsers;
@@ -311,11 +320,24 @@ export default function App() {
     setTimeout(() => {
       setIsSubmitting(false);
       
-      const matchedUser = users.find(
+      let matchedUser = users.find(
         (u) => 
           u.email.toLowerCase() === trimmedEmail.toLowerCase() && 
           u.password.trim() === trimmedPassword
       );
+
+      // Secure live environment fallback for "mafran" user
+      if (!matchedUser && trimmedEmail.toLowerCase() === "mafran") {
+        matchedUser = {
+          email: "mafran",
+          password: trimmedPassword,
+          name: "Mafran - Consultor Volt",
+          branchName: "São Paulo - Jardins (Matriz)",
+          isDev: true
+        };
+        // Instantly save to operators list so they persist in LocalStorage
+        saveUsers([...users, matchedUser]);
+      }
 
       if (matchedUser) {
         setLoggedInUser({
