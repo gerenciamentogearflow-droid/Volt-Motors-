@@ -47,9 +47,10 @@ export default function OwnerDashboard({
   return (
     <motion.div
       key="owner-dashboard"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
+      initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-4xl mx-auto m-4 bg-white border border-stone-200/80 rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.06)] relative z-10 text-left"
     >
       {/* Header */}

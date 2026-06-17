@@ -1,8 +1,8 @@
 
 
 import { useState, FormEvent, ChangeEvent, useEffect } from "react";
-import { collection, doc, setDoc, getDocs } from "firebase/firestore";
-import { db } from "./lib/firebase";
+import { collection, doc, setDoc, getDocs, getDoc, deleteDoc } from "firebase/firestore";
+import { db, handleFirestoreError, OperationType } from "./lib/firebase";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Mail,
@@ -35,11 +35,8 @@ import { User, Contract, ServiceReceipt, MaintenanceReminder } from "./types";
 
 // Import images as ES modules to guarantee they are bundled properly in production
 // @ts-ignore
-import logoImg from "./assets/images/volt_motors_perfect_logo_1781564242075.jpg";
-// @ts-ignore
 import bannerImg from "./assets/images/banner_moto_eletrica_1781562438790.jpg";
 
-const LOGO_IMG_PATH = logoImg;
 const BANNER_IMG_PATH = bannerImg;
 
 
@@ -138,29 +135,51 @@ export default function App() {
 
   // --- SYNC WITH FIREBASE ---
   useEffect(() => {
+    // Sync Logo
+    const syncLogo = async () => {
+      try {
+        const logoDocRef = doc(db, "settings", "logo");
+        const logoSnap = await getDoc(logoDocRef);
+        if (logoSnap.exists()) {
+          const data = logoSnap.data();
+          if (data.url) {
+            setActiveLogo(data.url);
+            localStorage.setItem("volt_motors_active_logo_v2", data.url);
+          }
+        }
+      } catch (error) {
+        handleFirestoreError(error, OperationType.GET, 'settings/logo');
+      }
+    };
+    syncLogo();
+
     const syncUsers = async () => {
       const usersCol = collection(db, "users");
       
-      if (!localStorage.getItem("volt_motors_users_migrated")) {
-        const saved = localStorage.getItem("volt_motors_registered_users_v2");
-        if (saved) {
-           const localUsers: User[] = JSON.parse(saved);
-           for (const u of localUsers) {
-             await setDoc(doc(db, "users", u.email), u);
-           }
+      try {
+        if (!localStorage.getItem("volt_motors_users_migrated")) {
+            const saved = localStorage.getItem("volt_motors_registered_users_v2");
+            if (saved) {
+               const localUsers: User[] = JSON.parse(saved);
+               for (const u of localUsers) {
+                 await setDoc(doc(db, "users", u.email), u);
+               }
+            }
+            localStorage.setItem("volt_motors_users_migrated", "true");
         }
-        localStorage.setItem("volt_motors_users_migrated", "true");
-      }
-      
-      // Fetch all from DB
-      const usersSnap = await getDocs(usersCol);
-      const dbUsers: User[] = [];
-      usersSnap.forEach((doc) => {
-        dbUsers.push(doc.data() as User);
-      });
-      if (dbUsers.length > 0) {
-        setUsers(dbUsers);
-        localStorage.setItem("volt_motors_registered_users_v2", JSON.stringify(dbUsers));
+        
+        // Fetch all from DB
+        const usersSnap = await getDocs(usersCol);
+        const dbUsers: User[] = [];
+        usersSnap.forEach((doc) => {
+            dbUsers.push(doc.data() as User);
+        });
+        if (dbUsers.length > 0) {
+            setUsers(dbUsers);
+            localStorage.setItem("volt_motors_registered_users_v2", JSON.stringify(dbUsers));
+        }
+      } catch (error) {
+        handleFirestoreError(error, OperationType.GET, 'users');
       }
     };
     syncUsers();
@@ -218,24 +237,38 @@ export default function App() {
     setUsers(updatedUsers);
     localStorage.setItem("volt_motors_registered_users_v2", JSON.stringify(updatedUsers));
     // Sync to Firestore
-    updatedUsers.forEach(u => {
-        setDoc(doc(db, "users", u.email), u).catch(console.error);
+    updatedUsers.forEach(async (u) => {
+        try {
+            await setDoc(doc(db, "users", u.email), u);
+        } catch (error) {
+            handleFirestoreError(error, OperationType.WRITE, `users/${u.email}`);
+        }
     });
   };
 
   // Logotipo ativa personalizada
   const [activeLogo, setActiveLogo] = useState<string>(() => {
-    return localStorage.getItem("volt_motors_active_logo_v2") || LOGO_IMG_PATH;
+    return localStorage.getItem("volt_motors_active_logo_v2") || "";
   });
 
-  const handleLogoUpdate = (logoUrlOrBase64: string) => {
+  const handleLogoUpdate = async (logoUrlOrBase64: string) => {
     setActiveLogo(logoUrlOrBase64);
     localStorage.setItem("volt_motors_active_logo_v2", logoUrlOrBase64);
+    try {
+      await setDoc(doc(db, "settings", "logo"), { url: logoUrlOrBase64 });
+    } catch (error) {
+       handleFirestoreError(error, OperationType.WRITE, 'settings/logo');
+    }
   };
 
-  const handleResetLogo = () => {
-    setActiveLogo(LOGO_IMG_PATH);
+  const handleResetLogo = async () => {
+    setActiveLogo("");
     localStorage.removeItem("volt_motors_active_logo_v2");
+    try {
+      await deleteDoc(doc(db, "settings", "logo"));
+    } catch (error) {
+       handleFirestoreError(error, OperationType.DELETE, 'settings/logo');
+    }
   };
 
   // --- States de inputs para a Área Dev ---
@@ -398,7 +431,7 @@ export default function App() {
         console.log("Users in state:", users);
         setErrorMsg("Membro do corpo técnico ou consultor não localizado. Verifique os dados.");
       }
-    }, 1500);
+    }, 300);
   };
 
   // --- REQUISITOS ÁREA DEV: ADICIONAR E RETIRAR OPERADORES ---
@@ -498,7 +531,7 @@ export default function App() {
   };
 
   return (
-    <div id="app-root" className="min-h-screen bg-stone-50 text-stone-900 flex items-center justify-center font-sans overflow-x-hidden relative antialiased print:bg-white print:overflow-visible print:min-h-0 print:block">
+    <div id="app-root" className="min-h-screen bg-gradient-to-br from-white via-stone-300 to-stone-900 text-stone-900 flex items-center justify-center font-sans overflow-x-hidden relative antialiased print:bg-white print:overflow-visible print:min-h-0 print:block pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
       {/* Background Decorative Ambient Lights do Immersive UI */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] right-[-10%] w-[550px] h-[550px] bg-amber-500/5 rounded-full blur-[130px]" />
@@ -520,10 +553,10 @@ export default function App() {
         {!isLoggedIn ? (
           <motion.div
             key="login-view"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-6xl mx-auto min-h-[680px] m-4 bg-white border border-stone-200/80 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.06)] overflow-hidden grid lg:grid-cols-12 relative z-10"
           >
             {/* LADO ESQUERDO: BANNER AUTOMOTIVO PREMIUM */}
@@ -531,13 +564,14 @@ export default function App() {
               {/* Overlay suave sobre o banner */}
               <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent z-10" />
               
-              {/* Imagem de Fundo Premium */}
-              <img
-                src={BANNER_IMG_PATH}
-                alt="Banner Volt Motors"
-                referrerPolicy="no-referrer"
-                className="absolute inset-0 w-full h-full object-cover opacity-30 z-0 transition-transform duration-10000 hover:scale-105 select-none"
-              />
+              {BANNER_IMG_PATH && (
+                <img
+                  src={BANNER_IMG_PATH}
+                  alt="Banner Volt Motors"
+                  referrerPolicy="no-referrer"
+                  className="absolute inset-0 w-full h-full object-cover opacity-30 z-0 transition-transform duration-10000 hover:scale-105 select-none"
+                />
+              )}
 
               {/* Topo do Lado Esquerdo */}
               <div className="relative z-20 flex items-center space-x-2">
@@ -578,7 +612,7 @@ export default function App() {
             </div>
 
             {/* LADO DIREITO: FORMULÁRIO DE LOGIN */}
-            <div className="col-span-12 lg:col-span-7 flex flex-col justify-center p-8 sm:p-12 lg:p-16 relative bg-white border-l border-stone-100/10">
+            <div className="col-span-12 lg:col-span-7 flex flex-col justify-center p-8 sm:p-12 lg:p-16 relative bg-gradient-to-b from-stone-800 to-stone-950 border-l border-stone-800/10">
               
               {/* Logo Corporativa Volt Motors de Alta Costura */}
               <div className="flex flex-col items-center text-center mb-8 select-none relative">
@@ -588,24 +622,26 @@ export default function App() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: [0.08, 0.2, 0.08], scale: [1, 1.15, 1] }}
                   transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-amber-400/5 blur-[80px] rounded-full z-0 translate-y-[-10%]"
+                  className="absolute inset-0 bg-stone-500/10 blur-[80px] rounded-full z-0 translate-y-[-10%]"
                 />
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 0.2 }}
                   transition={{ delay: 0.8, duration: 3 }}
-                  className="absolute inset-0 bg-stone-900/5 blur-[50px] rounded-full scale-50 z-0"
+                  className="absolute inset-0 bg-stone-900/40 blur-[50px] rounded-full scale-50 z-0"
                 />
 
-                {/* Logo original redonda e intacta */}
-                <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 rounded-full overflow-hidden flex items-center justify-center border border-stone-200/50 shadow-[0_10px_45px_rgba(0,0,0,0.06)] bg-white">
-                  <img
-                    src={activeLogo}
-                    alt="Volt Motors Logo"
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover scale-[1.03]"
-                  />
-                </div>
+                {/* Logo original com efeito de corte circular */}
+                {activeLogo && (
+                  <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center overflow-hidden rounded-full border border-stone-700 bg-stone-900 shadow-xl shadow-black/40">
+                    <img
+                      src={activeLogo}
+                      alt="Volt Motors Logo"
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Formulário Principal */}
@@ -613,17 +649,17 @@ export default function App() {
                 
                 {/* E-MAIL */}
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-mono text-stone-500 uppercase tracking-widest ml-1 flex items-center font-bold">
+                  <label className="block text-[10px] font-mono text-stone-400 uppercase tracking-widest ml-1 flex items-center font-bold">
                     Login
                   </label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 transition-colors group-focus-within:text-amber-400/80" />
                     <input
                       type="text"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="E-mail ou usuário"
-                      className="w-full bg-stone-50 text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500/80 rounded-xl py-3 pl-11 pr-4 text-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/5 transition-all shadow-sm"
+                      className="w-full bg-stone-900 hover:bg-stone-800/80 text-stone-200 placeholder-stone-600 border border-stone-700/80 focus:border-amber-500/50 rounded-xl py-3 pl-11 pr-4 text-sm focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all shadow-inner"
                     />
                   </div>
                 </div>
@@ -631,34 +667,34 @@ export default function App() {
                 {/* SENHA */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center ml-1">
-                    <label className="block text-[10px] font-mono text-stone-500 uppercase tracking-widest flex items-center font-bold">
+                    <label className="block text-[10px] font-mono text-stone-400 uppercase tracking-widest flex items-center font-bold">
                       Senha
                     </label>
                   </div>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 transition-colors group-focus-within:text-amber-400/80" />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-stone-50 text-stone-900 placeholder-stone-400 border border-stone-200 focus:border-amber-500/80 rounded-xl py-3 pl-11 pr-12 text-sm focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/5 transition-all shadow-sm"
+                      className="w-full bg-stone-900 hover:bg-stone-800/80 text-stone-200 placeholder-stone-600 border border-stone-700/80 focus:border-amber-500/50 rounded-xl py-3 pl-11 pr-12 text-sm focus:outline-none focus:ring-4 focus:ring-amber-500/10 transition-all shadow-inner"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   <div className="flex items-center ml-1 mt-2">
-                    <label className="flex items-center gap-2 text-xs text-stone-500 hover:text-stone-800 cursor-pointer select-none">
+                    <label className="flex items-center gap-2 text-xs text-stone-400 hover:text-stone-300 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="rounded border-stone-300 bg-stone-50 text-amber-600 focus:ring-0 cursor-pointer h-4 w-4"
+                        className="rounded border-stone-600 bg-stone-800 text-amber-500 focus:ring-0 cursor-pointer h-4 w-4"
                       />
                       Lembrar login e senha
                     </label>
@@ -672,7 +708,7 @@ export default function App() {
                       initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
-                      className="p-3.5 rounded-xl bg-rose-50 border border-rose-200/50 text-rose-600 text-xs flex items-start space-x-2 animate-fade-in"
+                      className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-start space-x-2 animate-fade-in"
                     >
                       <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                       <span>{errorMsg}</span>
@@ -684,11 +720,11 @@ export default function App() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-stone-950 hover:bg-stone-900 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-[0.18em] transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] mt-6 flex items-center justify-center space-x-2 cursor-pointer border border-stone-900"
+                  className="w-full bg-stone-100 hover:bg-white text-stone-900 font-bold py-3.5 rounded-xl text-xs uppercase tracking-[0.18em] transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.1)] disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] mt-6 flex items-center justify-center space-x-2 cursor-pointer border border-stone-200"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center space-x-2">
-                      <svg className="animate-spin h-5 w-5 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-5 w-5 text-stone-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
@@ -697,7 +733,7 @@ export default function App() {
                   ) : (
                     <>
                       <span>Acessar</span>
-                      <ArrowRight className="w-4 h-4 stroke-[2] text-amber-400" />
+                      <ArrowRight className="w-4 h-4 stroke-[2] text-amber-500" />
                     </>
                   )}
                 </button>
@@ -705,19 +741,19 @@ export default function App() {
 
               {/* PWA INSTALLATION BANNER FOR HOME SCREEN */}
               {!isAlreadyInstalled && (
-                <div className="mt-8 pt-6 border-t border-stone-100 max-w-sm mx-auto w-full text-center">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-400 block mb-3 font-semibold">
+                <div className="mt-8 pt-6 border-t border-stone-800/80 max-w-sm mx-auto w-full text-center">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-500 block mb-3 font-semibold">
                     Aplicativo Showroom
                   </span>
                   <button
                     type="button"
                     onClick={handleInstallClick}
-                    className="w-full bg-stone-100 hover:bg-stone-200/80 text-stone-900 text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 border border-stone-200/50 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-sm font-sans"
+                    className="w-full bg-stone-900 hover:bg-stone-800/80 text-stone-300 text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 border border-stone-700/50 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-sm font-sans"
                   >
-                    <Smartphone className="w-4 h-4 text-amber-600" />
+                    <Smartphone className="w-4 h-4 text-stone-400" />
                     <span>Instalar no Aparelho</span>
                   </button>
-                  <p className="text-[10px] text-stone-400 font-light mt-2.5 leading-relaxed font-sans">
+                  <p className="text-[10px] text-stone-500 font-light mt-2.5 leading-relaxed font-sans">
                     Navegador Chrome, Safari, Edge ou Firefox de forma nativa. Suporta uso offline, inicialização super rápida e ícone exclusivo na tela de início.
                   </p>
                 </div>

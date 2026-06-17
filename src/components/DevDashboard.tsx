@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { LogOut, UserPlus, Trash2, Users } from "lucide-react";
+import React, { useState, ChangeEvent } from "react";
+import { LogOut, UserPlus, Trash2, Users, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { User } from "../types";
 
@@ -58,13 +58,26 @@ export default function DevDashboard({
     setDeletePassword("");
   };
 
+  const handleLogoFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          handleLogoUpdate(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <motion.div
       key="dev-dashboard"
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.5 }}
+      initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-5xl mx-auto m-4 bg-white border border-stone-200 rounded-3xl p-6 sm:p-10 shadow-lg relative z-10 text-left"
     >
         {/* Header Área Dev */}
@@ -87,6 +100,31 @@ export default function DevDashboard({
             <LogOut className="w-4 h-4" />
             <span>Desconectar</span>
           </button>
+        </div>
+
+        {/* --- CONFIGURAÇÕES DE PERSONALIZAÇÃO --- */}
+        <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-4 mb-4">
+                <div className="p-3 bg-amber-500/10 rounded-full border border-amber-500/20 text-amber-700">
+                    <ImageIcon className="w-5 h-5" />
+                </div>
+                <div>
+                    <h2 className="text-sm font-mono text-stone-900 uppercase tracking-widest font-bold">Logotipo do App</h2>
+                    <p className="text-xs text-stone-500 font-semibold mt-1">Carregue a nova logo para a tela de login.</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-4">
+               {activeLogo && <img src={activeLogo} alt="Logo Atual" className="w-16 h-16 rounded-xl border border-stone-200 object-contain bg-white" />}
+               <div className="flex flex-col gap-2 flex-grow">
+                   <input type="file" accept="image/*" onChange={handleLogoFileChange} className="hidden" id="logo-upload" />
+                   <label htmlFor="logo-upload" className="w-full text-center px-4 py-3 bg-stone-950 hover:bg-stone-900 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all cursor-pointer">
+                      Selecionar Imagem
+                   </label>
+                   <button onClick={handleResetLogo} className="w-full text-center px-4 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all cursor-pointer">
+                      Resetar Padrão
+                   </button>
+               </div>
+            </div>
         </div>
 
         {/* --- GERENCIAMENTO DE CONSULTORES (Folders) --- */}
