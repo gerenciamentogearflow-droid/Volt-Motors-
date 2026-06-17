@@ -135,11 +135,10 @@ export default function App() {
 
   // --- SYNC WITH FIREBASE ---
   useEffect(() => {
-    // Sync Logo
-    const syncLogo = async () => {
-      try {
-        const logoDocRef = doc(db, "settings", "logo");
-        const logoSnap = await getDoc(logoDocRef);
+    // Sync Logo em tempo real usando onSnapshot (escuta mudanças dinamicamente)
+    import("firebase/firestore").then(({ doc, onSnapshot }) => {
+      const logoDocRef = doc(db, "settings", "logo");
+      const unsubscribeLogo = onSnapshot(logoDocRef, (logoSnap) => {
         if (logoSnap.exists()) {
           const data = logoSnap.data();
           if (data.url) {
@@ -147,11 +146,12 @@ export default function App() {
             localStorage.setItem("volt_motors_active_logo_v2", data.url);
           }
         }
-      } catch (error) {
-        handleFirestoreError(error, OperationType.GET, 'settings/logo');
-      }
-    };
-    syncLogo();
+      }, (error) => {
+        console.error("Erro ao escutar mudanças da logo:", error);
+      });
+      
+      return () => unsubscribeLogo();
+    });
 
     const syncUsers = async () => {
       const usersCol = collection(db, "users");

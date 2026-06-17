@@ -64,7 +64,36 @@ export default function DevDashboard({
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
-          handleLogoUpdate(reader.result);
+          // Compress the image before uploading to avoid Firestore 1MB document limit
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const MAX_WIDTH = 512;
+            const MAX_HEIGHT = 512;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height = Math.round((height * MAX_WIDTH) / width);
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width = Math.round((width * MAX_HEIGHT) / height);
+                height = MAX_HEIGHT;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const compressedBase64 = canvas.toDataURL("image/jpeg", 0.85);
+              handleLogoUpdate(compressedBase64);
+            }
+          };
+          img.src = reader.result;
         }
       };
       reader.readAsDataURL(file);
