@@ -15,9 +15,10 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
 
   // Form states
   const [cliente, setCliente] = useState("");
+  const [telefoneCliente, setTelefoneCliente] = useState("");
   const [modelo, setModelo] = useState("");
   const [data, setData] = useState("");
-  const [descricao, setDescricao] = useState("Revisão de Fábrica Geral - 1.000 km");
+  const [descricao, setDescricao] = useState("Revisão de Fábrica Geral - 30 dias");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +30,7 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
     const newItem: MaintenanceReminder = {
       id: "MNT-" + Math.floor(Math.random() * 90000 + 10000),
       cliente,
+      telefoneCliente,
       modelo,
       data,
       descricao,
@@ -38,9 +40,10 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
 
     onSaveMaintenance([newItem, ...maintenanceReminders]);
     setCliente("");
+    setTelefoneCliente("");
     setModelo("");
     setData("");
-    setDescricao("Revisão de Fábrica Geral - 1.000 km");
+    setDescricao("Revisão de Fábrica Geral - 30 dias");
     setShowAddForm(false);
   };
 
@@ -60,10 +63,36 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
     }
   };
 
+  // Grouping
+  const now = new Date();
+  const todayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+  const activePendings = maintenanceReminders.filter(m => {
+    if (m.status !== "pending") return false;
+    const parts = m.data.split("-");
+    if (parts.length !== 3) return true; // fallback
+    const itemMs = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])).getTime();
+    const diffDays = (itemMs - todayMs) / (1000 * 60 * 60 * 24);
+    return diffDays <= 3;
+  });
+
+  const futurePendings = maintenanceReminders.filter(m => {
+    if (m.status !== "pending") return false;
+    const parts = m.data.split("-");
+    if (parts.length !== 3) return false;
+    const itemMs = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])).getTime();
+    const diffDays = (itemMs - todayMs) / (1000 * 60 * 60 * 24);
+    return diffDays > 3;
+  });
+
+  const completedMaintenances = maintenanceReminders.filter(m => m.status === "completed");
+
+  const orderedList = [...activePendings, ...futurePendings, ...completedMaintenances];
+
   // Metrics
-  const pendingCount = maintenanceReminders.filter(m => m.status === "pending").length;
-  const completedCount = maintenanceReminders.filter(m => m.status === "completed").length;
-  const totalCount = maintenanceReminders.length;
+  const pendingCount = activePendings.length;
+  const completedCount = completedMaintenances.length;
+  const totalCount = activePendings.length + completedCount;
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
@@ -155,7 +184,7 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
                      <Wrench className="w-3.5 h-3.5" /> Registrar Ordem de Manutenção
                   </h4>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-1">
                       <label className="block text-[10px] font-mono text-stone-600 uppercase tracking-wider ml-1 font-semibold">Nome do Cliente *</label>
                       <input
@@ -164,6 +193,17 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
                         placeholder="Ex: Carlos Augusto Silveira"
                         value={cliente}
                         onChange={(e) => setCliente(e.target.value)}
+                        className="w-full bg-white text-stone-900 border border-stone-200 focus:border-amber-500/50 rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-[10px] font-mono text-stone-600 uppercase tracking-wider ml-1 font-semibold">Contato do Cliente (Opcional)</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: (34) 99999-9999"
+                        value={telefoneCliente}
+                        onChange={(e) => setTelefoneCliente(e.target.value)}
                         className="w-full bg-white text-stone-900 border border-stone-200 focus:border-amber-500/50 rounded-xl px-4 py-3 text-sm outline-none transition-all"
                       />
                     </div>
@@ -189,8 +229,8 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
                         onChange={(e) => setDescricao(e.target.value)}
                         className="w-full bg-white text-stone-900 border border-stone-200 focus:border-amber-500/50 rounded-xl px-4 py-3 text-sm outline-none transition-all"
                       >
-                        <option value="Revisão de Fábrica Geral - 1.000 km">Revisão de Fábrica Geral - 1.000 km</option>
-                        <option value="Revisão de Fábrica Periódica - 5.000 km">Revisão de Fábrica Periódica - 5.000 km</option>
+                        <option value="Revisão de Fábrica Geral - 30 dias">Revisão de Fábrica Geral - 30 dias</option>
+                        <option value="Revisão de Fábrica Periódica - 6 meses">Revisão de Fábrica Periódica - 6 meses</option>
                         <option value="Manutenção Corretiva / Pastilhas">Manutenção Corretiva / Pastilhas</option>
                         <option value="Check-up Eletrônico e Calibração">Check-up Eletrônico e Calibração</option>
                         <option value="Instalação Especial de Acessórios Gold">Instalação Especial de Acessórios Gold</option>
@@ -232,46 +272,56 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
 
             {/* List entries */}
             <div className="space-y-3">
-              {maintenanceReminders.length === 0 ? (
+              {orderedList.length === 0 ? (
                 <div className="text-center py-12 border border-stone-200 rounded-3xl border-dashed select-none">
                   <Wrench className="w-10 h-10 text-stone-300 mx-auto mb-3" />
                   <p className="text-sm text-stone-500 font-light">Nenhuma manutenção pendente ou agendada.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3">
-                  {maintenanceReminders.map((item) => (
+                  {orderedList.map((item) => {
+                    const isFuture = futurePendings.some(f => f.id === item.id);
+                    const isActive = activePendings.some(a => a.id === item.id);
+                    
+                    return (
                     <div
                       key={item.id}
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${item.status === 'completed' ? 'bg-stone-50 border-stone-150 opacity-60' : 'bg-white border-stone-200 hover:border-amber-500/30 shadow-sm'}`}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${item.status === 'completed' ? 'bg-stone-50 border-stone-150 opacity-60' : isActive ? 'bg-amber-50/50 border-amber-300 hover:border-amber-500/50 shadow-sm' : 'bg-white border-stone-200 hover:border-amber-500/30'}`}
                     >
                       <div className="flex gap-4 items-start">
                         <button
                           type="button"
                           onClick={() => toggleStatus(item.id)}
-                          className={`mt-1 h-5 w-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${item.status === "completed" ? "bg-green-600 border-green-600 text-white" : "border-amber-500/50 hover:bg-amber-50 text-transparent"}`}
+                          className={`mt-1 h-5 w-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${item.status === "completed" ? "bg-green-600 border-green-600 text-white" : "border-amber-500/50 hover:bg-amber-100 text-transparent hover:text-amber-600"}`}
                         >
                           ✓
                         </button>
                         
-                        <div className="space-y-1">
+                        <div className="space-y-1.5">
                           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 select-none">
                             <span className="text-[10px] font-mono text-stone-400">{item.id}</span>
-                            <span className={`px-2 py-0.5 text-[8px] font-mono font-bold tracking-widest uppercase rounded ${item.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800 animate-pulse'}`}>
-                              {item.status === 'completed' ? 'Realizado' : 'Aguardando'}
+                            <span className={`px-2 py-0.5 text-[8px] font-mono font-bold tracking-widest uppercase rounded ${item.status === 'completed' ? 'bg-green-100 text-green-800' : isActive ? 'bg-amber-100 text-amber-800 animate-pulse' : 'bg-stone-100 text-stone-500'}`}>
+                              {item.status === 'completed' ? 'Realizado' : isActive ? 'Avisar Cliente' : 'Agendado Futuro'}
                             </span>
                           </div>
                           
                           <h4 className={`text-sm font-serif font-bold text-stone-900 ${item.status === 'completed' ? 'line-through text-stone-400' : ''}`}>
                             {item.cliente} <span className="text-stone-500 font-sans font-light text-xs">({item.modelo})</span>
                           </h4>
+
+                          {item.telefoneCliente && (
+                            <div className={`text-xs font-mono font-medium ${item.status === 'completed' ? 'text-stone-400' : 'text-stone-600'}`}>
+                              Contato: {item.telefoneCliente}
+                            </div>
+                          )}
                           
-                          <p className={`text-xs ${item.status === 'completed' ? 'text-stone-400' : 'text-stone-600'} font-light`}>
+                          <p className={`text-xs max-w-sm ${item.status === 'completed' ? 'text-stone-400' : 'text-stone-600'} font-light`}>
                             {item.descricao}
                           </p>
 
                           <div className="text-[10px] font-mono text-stone-500 flex items-center gap-1.5 pt-1">
-                            <Calendar className="w-3 h-3 text-amber-600" /> 
-                            Agendado para: <span className="text-stone-800 font-semibold">{new Date(item.data + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
+                            <Calendar className={`w-3 h-3 ${isActive ? 'text-rose-600' : 'text-amber-600'}`} /> 
+                            Agendado para: <span className={`${isActive ? 'text-rose-700 font-bold' : 'text-stone-800 font-semibold'}`}>{new Date(item.data + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
                           </div>
                         </div>
                       </div>
@@ -286,7 +336,7 @@ export default function MaintenanceModal({ onClose, maintenanceReminders, onSave
                         </button>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </div>

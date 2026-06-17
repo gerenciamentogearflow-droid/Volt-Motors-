@@ -5,7 +5,7 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
   --font-serif: "Playfair Display", serif;
-  --font-mono: "Outfit", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: ui-monospace, SFMono-Regular, "Courier New", monospace;
   --animate-shake: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 
   @keyframes shake {
@@ -28,6 +28,18 @@
   
   input, textarea {
     user-select: auto;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: white !important;
   }
 }
 

@@ -140,6 +140,8 @@ export default function OwnerDashboard({
             contractSequence={contractSequence}
             saveContractSequence={saveContractSequence}
             activeLogo={activeLogo}
+            maintenanceReminders={maintenanceReminders}
+            onSaveMaintenance={saveMaintenanceReminders}
           />
         )}
 

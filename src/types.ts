@@ -41,6 +41,7 @@ export interface ServiceReceipt {
 export interface MaintenanceReminder {
   id: string;
   cliente: string;
+  telefoneCliente?: string;
   modelo: string;
   data: string;
   descricao: string;

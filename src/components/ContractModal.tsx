@@ -3,7 +3,7 @@ import { X, Calendar, FileText, CheckCircle, ShieldCheck, Printer, ArrowLeft, Tr
 import { motion, AnimatePresence } from "motion/react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { Contract } from "../types";
+import { Contract, MaintenanceReminder } from "../types";
 
 interface ContractModalProps {
   onClose: () => void;
@@ -13,11 +13,13 @@ interface ContractModalProps {
   contractSequence: number;
   saveContractSequence: (seq: number) => void;
   activeLogo: string;
+  maintenanceReminders: MaintenanceReminder[];
+  onSaveMaintenance: (maintenances: MaintenanceReminder[]) => void;
 }
 
 
 
-export default function ContractModal({ onClose, contracts, onSaveContract, currentUser, contractSequence, saveContractSequence, activeLogo }: ContractModalProps) {
+export default function ContractModal({ onClose, contracts, onSaveContract, currentUser, contractSequence, saveContractSequence, activeLogo, maintenanceReminders, onSaveMaintenance }: ContractModalProps) {
   const [activeTab, setActiveTab] = useState<"issue" | "list">("issue");
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
 
@@ -217,7 +219,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
           gap: isPrintMode ? "0px" : "32px",
           backgroundColor: "transparent",
         }}
-        className="no-print select-text"
+        className="select-text print:!transform-none print:!gap-0 print:!w-full"
       >
         {/* PAGE 1 */}
         <div
@@ -237,7 +239,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
             boxSizing: "border-box",
             justifyContent: "space-between"
           }}
-          className="border border-stone-300 shadow-2xl relative shrink-0"
+          className="border border-stone-300 shadow-2xl relative shrink-0 print:border-0 print:shadow-none print:break-after-page print:w-full"
         >
           {/* Watermark 1 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.03] select-none text-center">
@@ -359,7 +361,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
             boxSizing: "border-box",
             justifyContent: "space-between"
           }}
-          className="border border-stone-300 shadow-2xl relative shrink-0"
+          className="border border-stone-300 shadow-2xl relative shrink-0 print:border-0 print:shadow-none print:w-full"
         >
           {/* Watermark 2 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.03] select-none text-center">
@@ -776,6 +778,31 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
       // If it's a new contract being issued (ID has padded value), increment sequence
       if (activeTab === "issue") {
         saveContractSequence(contractSequence + 1);
+
+        // Calculate maintenance date (30 days after dataEntrega or today)
+        let baseDate = new Date();
+        if (selectedContract.dataEntrega) {
+          const parts = selectedContract.dataEntrega.split("-");
+          if (parts.length === 3) {
+            baseDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+          }
+        }
+        
+        baseDate.setDate(baseDate.getDate() + 30);
+        const nextMonthStr = baseDate.getFullYear() + "-" + String(baseDate.getMonth() + 1).padStart(2, "0") + "-" + String(baseDate.getDate()).padStart(2, "0");
+
+        const mntItem: MaintenanceReminder = {
+          id: "MNT-" + Math.floor(Math.random() * 90000 + 10000),
+          cliente: selectedContract.nomeCliente,
+          telefoneCliente: selectedContract.telefoneCliente,
+          modelo: selectedContract.modelo,
+          data: nextMonthStr,
+          descricao: "Revisão de Fábrica Geral - 30 dias",
+          status: "pending",
+          createdAt: new Date().toLocaleDateString("pt-BR")
+        };
+
+        onSaveMaintenance([mntItem, ...maintenanceReminders]);
       }
 
       setSelectedContract(null);

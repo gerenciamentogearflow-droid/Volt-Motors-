@@ -111,6 +111,8 @@ export default function SellerDashboard({
             contractSequence={contractSequence}
             saveContractSequence={saveContractSequence}
             activeLogo={activeLogo}
+            maintenanceReminders={maintenanceReminders}
+            onSaveMaintenance={saveMaintenanceReminders}
           />
         )}
 
