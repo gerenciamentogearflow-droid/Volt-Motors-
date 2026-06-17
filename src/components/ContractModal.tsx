@@ -58,6 +58,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
   const SYSTEM_ACCESS_PASSWORD = currentUser.password || "728"; 
 
   const containerRef = useRef<HTMLDivElement>(null);
+  
   const [scale, setScale] = useState(1);
   const [showFullScreenPreview, setShowFullScreenPreview] = useState(false);
   const [fullScreenScale, setFullScreenScale] = useState(1);
@@ -254,7 +255,6 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
             <div style={{ borderBottomColor: "#1c1917" }} className="text-center space-y-4 pb-6 border-b-2 font-sans">
               <div className="mx-auto flex flex-col items-center justify-center select-none py-1 pb-3">
                 <div className="flex flex-col items-center select-none leading-none">
-                  {/* Styled precisely like the brand logomarca */}
                   <span className="font-display italic font-black text-5xl tracking-tighter text-stone-950">
                     Volt
                   </span>

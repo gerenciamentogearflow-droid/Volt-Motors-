@@ -135,24 +135,6 @@ export default function App() {
 
   // --- SYNC WITH FIREBASE ---
   useEffect(() => {
-    // Sync Logo em tempo real usando onSnapshot (escuta mudanças dinamicamente)
-    import("firebase/firestore").then(({ doc, onSnapshot }) => {
-      const logoDocRef = doc(db, "settings", "logo");
-      const unsubscribeLogo = onSnapshot(logoDocRef, (logoSnap) => {
-        if (logoSnap.exists()) {
-          const data = logoSnap.data();
-          if (data.url) {
-            setActiveLogo(data.url);
-            localStorage.setItem("volt_motors_active_logo_v2", data.url);
-          }
-        }
-      }, (error) => {
-        console.error("Erro ao escutar mudanças da logo:", error);
-      });
-      
-      return () => unsubscribeLogo();
-    });
-
     const syncUsers = async () => {
       const usersCol = collection(db, "users");
       
@@ -246,10 +228,8 @@ export default function App() {
     });
   };
 
-  // Logotipo ativa personalizada
-  const [activeLogo, setActiveLogo] = useState<string>(() => {
-    return localStorage.getItem("volt_motors_active_logo_v2") || "";
-  });
+  // Definitve Logo
+  const activeLogo = "/logo.jpg";
 
   // --- SYNC FAVICON AND APP ICON WITH LOGO ---
   useEffect(() => {
@@ -300,28 +280,7 @@ export default function App() {
     }
   }, [activeLogo]);
 
-  const handleLogoUpdate = async (logoUrlOrBase64: string) => {
-    setActiveLogo(logoUrlOrBase64);
-    localStorage.setItem("volt_motors_active_logo_v2", logoUrlOrBase64);
-    try {
-      await setDoc(doc(db, "settings", "logo"), { url: logoUrlOrBase64 });
-    } catch (error) {
-       handleFirestoreError(error, OperationType.WRITE, 'settings/logo');
-    }
-  };
-
-  const handleResetLogo = async () => {
-    setActiveLogo("");
-    localStorage.removeItem("volt_motors_active_logo_v2");
-    try {
-      await deleteDoc(doc(db, "settings", "logo"));
-    } catch (error) {
-       handleFirestoreError(error, OperationType.DELETE, 'settings/logo');
-    }
-  };
-
   // --- States de inputs para a Área Dev ---
-  const [logoUrlInput, setLogoUrlInput] = useState("");
   const [newUserName, setNewUserName] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
@@ -536,28 +495,6 @@ export default function App() {
     }
   };
 
-  const handleLogoFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          handleLogoUpdate(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleLogoUrlApply = () => {
-    if (!logoUrlInput.trim()) {
-      alert("Por favor, preencha um endereço de imagem URL válido.");
-      return;
-    }
-    handleLogoUpdate(logoUrlInput.trim());
-    setLogoUrlInput("");
-  };
-
   // --- FORGOT PASSWORD HANDLER ---
   const handleForgotSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -681,7 +618,7 @@ export default function App() {
                 />
 
                 {/* Logo original com efeito de corte circular */}
-                {activeLogo && (
+                {activeLogo ? (
                   <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center overflow-hidden rounded-full border border-stone-700 bg-stone-900 shadow-xl shadow-black/40">
                     <img
                       src={activeLogo}
@@ -689,6 +626,15 @@ export default function App() {
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
+                  </div>
+                ) : (
+                  <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 flex flex-col items-center justify-center rounded-full border border-stone-800 bg-stone-900 shadow-xl shadow-black/40 p-4">
+                    <span className="font-display italic font-black text-5xl tracking-tighter text-white">
+                      Volt
+                    </span>
+                    <span className="font-display text-[10px] tracking-[0.55em] text-stone-500 uppercase font-black mr-[-0.55em] mt-2">
+                      MOTORS
+                    </span>
                   </div>
                 )}
               </div>
@@ -815,9 +761,6 @@ export default function App() {
             handleLogout={handleLogout}
             users={users}
             saveUsers={saveUsers}
-            activeLogo={activeLogo}
-            handleLogoUpdate={handleLogoUpdate}
-            handleResetLogo={handleResetLogo}
             onResetSales={() => {
               if (window.confirm("Atenção! Esta ação apagará TODOS os contratos emitidos. Deseja continuar?")) {
                 saveContracts([]);

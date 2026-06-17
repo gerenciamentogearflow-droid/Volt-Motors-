@@ -7,9 +7,6 @@ interface DevDashboardProps {
   handleLogout: () => void;
   users: User[];
   saveUsers: (users: User[]) => void;
-  activeLogo: string;
-  handleLogoUpdate: (logoUrl: string) => void;
-  handleResetLogo: () => void;
   onResetSales: () => void;
 }
 
@@ -17,9 +14,6 @@ export default function DevDashboard({
   handleLogout, 
   users, 
   saveUsers,
-  activeLogo,
-  handleLogoUpdate,
-  handleResetLogo,
   onResetSales
 }: DevDashboardProps) {
   const [newUserName, setNewUserName] = useState("");
@@ -58,48 +52,6 @@ export default function DevDashboard({
     setDeletePassword("");
   };
 
-  const handleLogoFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          // Compress the image before uploading to avoid Firestore 1MB document limit
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const MAX_WIDTH = 512;
-            const MAX_HEIGHT = 512;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-              if (width > MAX_WIDTH) {
-                height = Math.round((height * MAX_WIDTH) / width);
-                width = MAX_WIDTH;
-              }
-            } else {
-              if (height > MAX_HEIGHT) {
-                width = Math.round((width * MAX_HEIGHT) / height);
-                height = MAX_HEIGHT;
-              }
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            if (ctx) {
-              ctx.drawImage(img, 0, 0, width, height);
-              const compressedBase64 = canvas.toDataURL("image/jpeg", 0.85);
-              handleLogoUpdate(compressedBase64);
-            }
-          };
-          img.src = reader.result;
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <motion.div
       key="dev-dashboard"
@@ -129,31 +81,6 @@ export default function DevDashboard({
             <LogOut className="w-4 h-4" />
             <span>Desconectar</span>
           </button>
-        </div>
-
-        {/* --- CONFIGURAÇÕES DE PERSONALIZAÇÃO --- */}
-        <div className="bg-stone-50 border border-stone-200 rounded-3xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-4 mb-4">
-                <div className="p-3 bg-amber-500/10 rounded-full border border-amber-500/20 text-amber-700">
-                    <ImageIcon className="w-5 h-5" />
-                </div>
-                <div>
-                    <h2 className="text-sm font-mono text-stone-900 uppercase tracking-widest font-bold">Logotipo do App</h2>
-                    <p className="text-xs text-stone-500 font-semibold mt-1">Carregue a nova logo para a tela de login.</p>
-                </div>
-            </div>
-            <div className="flex items-center gap-4">
-               {activeLogo && <img src={activeLogo} alt="Logo Atual" className="w-16 h-16 rounded-xl border border-stone-200 object-contain bg-white" />}
-               <div className="flex flex-col gap-2 flex-grow">
-                   <input type="file" accept="image/*" onChange={handleLogoFileChange} className="hidden" id="logo-upload" />
-                   <label htmlFor="logo-upload" className="w-full text-center px-4 py-3 bg-stone-950 hover:bg-stone-900 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all cursor-pointer">
-                      Selecionar Imagem
-                   </label>
-                   <button onClick={handleResetLogo} className="w-full text-center px-4 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all cursor-pointer">
-                      Resetar Padrão
-                   </button>
-               </div>
-            </div>
         </div>
 
         {/* --- GERENCIAMENTO DE CONSULTORES (Folders) --- */}
