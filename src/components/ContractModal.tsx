@@ -43,6 +43,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
   const [isSigned, setIsSigned] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [pendingShareFile, setPendingShareFile] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [contractReady, setContractReady] = useState(false);
   const [isDraft, setIsDraft] = useState(false);
@@ -480,6 +481,36 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
     );
   };
 
+  const executePendingShare = async () => {
+    if (!pendingShareFile) return;
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [pendingShareFile] })) {
+        await navigator.share({
+          files: [pendingShareFile],
+          title: `Contrato VoltMotors - ${selectedContract?.nomeCliente}`,
+          text: `Contrato referente ao veículo ${selectedContract?.modelo}.`
+        });
+      } else {
+        throw new Error("Sharing not supported");
+      }
+      setPendingShareFile(null);
+    } catch (e: any) {
+      console.error("Error executing pending share:", e);
+      if (e.name !== 'AbortError') {
+        alert("Não foi possível compartilhar diretamente com a interface nativa. O arquivo será baixado.");
+        const originUrl = URL.createObjectURL(pendingShareFile);
+        const a = document.createElement("a");
+        a.href = originUrl;
+        a.download = pendingShareFile.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(originUrl);
+      }
+      setPendingShareFile(null);
+    }
+  };
+
   const handleShare = async (elementId = "a4-contract-page", action: "download" | "whatsapp" = "download") => {
     if (!selectedContract) return;
     setIsSharing(true);
@@ -625,24 +656,9 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
 
       if (action === "whatsapp") {
         const pdffile = new File([pdf.output("blob")], `Contrato_VoltMotors_${selectedContract.id}.pdf`, { type: "application/pdf" });
-        if (navigator.canShare && navigator.canShare({ files: [pdffile] })) {
-          try {
-            await navigator.share({
-              files: [pdffile],
-              title: `Contrato VoltMotors - ${selectedContract.nomeCliente}`,
-              text: `Contrato referente ao veículo ${selectedContract.modelo}.`
-            });
-          } catch (e: any) {
-            console.error("Erro ao compartilhar via WhatsApp:", e);
-            if (e.name !== 'AbortError') {
-              alert("Ocorreu um erro ao tentar compartilhar. O arquivo será baixado em seu dispositivo.");
-              pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
-            }
-          }
-        } else {
-          alert("O compartilhamento direto de arquivos não é suportado neste dispositivo/navegador. Iniciando download do arquivo.");
-          pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
-        }
+        setPendingShareFile(pdffile);
+        setIsSharing(false);
+        return;
       } else {
         pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
       }
@@ -1223,9 +1239,25 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
                     )}
                   </div>
 
-                  {isSharing && (
+                  {isSharing && !pendingShareFile && (
                     <div className="bg-amber-100 border border-amber-200 rounded-2xl p-4 text-center text-amber-900 text-xs font-mono uppercase animate-pulse select-none no-print">
                       ⚙️ PROCESSANDO EXPORTAÇÃO A4 DE ALTA RESOLUÇÃO... POR FAVOR, AGUARDE UM MOMENTO.
+                    </div>
+                  )}
+
+                  {pendingShareFile && (
+                    <div className="bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl p-6 text-center text-green-900 select-none no-print space-y-4 shadow-sm animate-in fade-in">
+                      <p className="text-sm font-mono uppercase font-bold text-[#1DA851] leading-relaxed">
+                        ✅ Documento PDF Gerado e Pronto<br/>
+                        <span className="text-[10px] text-[#25D366] mt-1 block">Clique abaixo para concluir o envio via WhatsApp (Necessário para segurança do navegador)</span>
+                      </p>
+                      <button
+                        type="button"
+                        onClick={executePendingShare}
+                        className="mx-auto flex items-center justify-center gap-3 py-3.5 px-8 bg-[#25D366] hover:bg-[#1DA851] text-white font-bold rounded-2xl text-sm font-mono uppercase transition-all shadow-lg active:scale-[0.98]"
+                      >
+                        <MessageCircle className="w-5 h-5" /> Enviar Agora no WhatsApp
+                      </button>
                     </div>
                   )}
 
@@ -1407,21 +1439,52 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
             className="fixed inset-0 bg-stone-100 z-[100] flex flex-col overflow-hidden select-none pointer-events-auto print:bg-white print:absolute print:inset-0 print:overflow-visible print:z-[9999]"
           >
             {/* Header */}
-            <div className="flex flex-wrap justify-between items-center px-6 py-4 bg-white border-b border-stone-200 shrink-0 gap-4 print:hidden">
+            <div className="flex flex-wrap justify-between items-center px-4 md:px-6 py-4 bg-white border-b border-stone-200 shrink-0 gap-4 print:hidden">
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-700 font-bold">
+                <button
+                  type="button"
+                  onClick={() => setShowFullScreenPreview(false)}
+                  className="p-2 border border-stone-200 hover:bg-stone-100 text-stone-600 rounded-lg transition-colors mr-1 sm:hidden shrink-0"
+                  aria-label="Voltar"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <div className="p-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-700 font-bold hidden sm:block">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-mono uppercase tracking-widest text-stone-900 flex items-center gap-2 font-bold">
-                    Visualização do Contrato Oficial
+                  <h3 className="text-xs sm:text-sm font-mono uppercase tracking-widest text-stone-900 flex flex-wrap items-center gap-2 font-bold leading-tight">
+                    Visualização do Contrato <span className="hidden sm:inline">Oficial</span>
                     <span className="text-[9px] font-mono text-amber-800 py-0.5 px-2 bg-amber-50 border border-amber-300 rounded font-bold">PDF A4</span>
                   </h3>
                   <p className="text-[10px] text-stone-550 font-sans mt-0.5 font-medium">Real-Time Vector Map • {selectedContract?.modelo}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 relative w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setShowFullScreenPreview(false)}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-stone-700 hover:text-stone-950 rounded-lg text-xs font-mono uppercase transition-colors font-bold mr-2"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" /> Voltar
+                </button>
+                
+                {pendingShareFile && (
+                  <div className="absolute top-12 right-0 w-80 bg-white border border-[#25D366]/30 shadow-2xl rounded-2xl p-4 text-center select-none animate-in slide-in-from-top-4 fade-in z-[200]">
+                    <p className="text-xs font-mono uppercase font-bold text-[#1DA851] mb-2 leading-relaxed">
+                      ✅ PDF Pronto para Envio
+                    </p>
+                    <button
+                      type="button"
+                      onClick={executePendingShare}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#25D366] hover:bg-[#1DA851] text-white font-bold rounded-xl text-xs font-mono uppercase transition-all shadow-md active:scale-[0.98]"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Enviar Agora no WhatsApp
+                    </button>
+                  </div>
+                )}
+                
                 {isDraft ? (
                     <button
                       type="button"
