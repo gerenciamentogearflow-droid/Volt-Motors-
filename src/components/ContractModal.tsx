@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, Calendar, FileText, CheckCircle, ShieldCheck, Printer, ArrowLeft, Trash2, Key, Award, Share2, Loader, Eye, Maximize2, Minimize2 } from "lucide-react";
+import { X, Calendar, FileText, CheckCircle, ShieldCheck, Printer, ArrowLeft, Trash2, Key, Award, Share2, Loader, Eye, Maximize2, Minimize2, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -480,7 +480,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
     );
   };
 
-  const handleShare = async (elementId = "a4-contract-page") => {
+  const handleShare = async (elementId = "a4-contract-page", action: "download" | "whatsapp" = "download") => {
     if (!selectedContract) return;
     setIsSharing(true);
 
@@ -511,7 +511,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
       }
 
       const options = {
-        scale: 4, // Extremely high resolution for print perfection
+        scale: 2, // High resolution for print, safe for all mobile canvas limits (iOS Safari < 4096px)
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
@@ -623,8 +623,29 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
       pdf.addPage();
       pdf.addImage(imgData2, "PNG", 0, 0, imgWidth, pageHeight, undefined, 'FAST');
 
-      // Force direct download
-      pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
+      if (action === "whatsapp") {
+        const pdffile = new File([pdf.output("blob")], `Contrato_VoltMotors_${selectedContract.id}.pdf`, { type: "application/pdf" });
+        if (navigator.canShare && navigator.canShare({ files: [pdffile] })) {
+          try {
+            await navigator.share({
+              files: [pdffile],
+              title: `Contrato VoltMotors - ${selectedContract.nomeCliente}`,
+              text: `Contrato referente ao veículo ${selectedContract.modelo}.`
+            });
+          } catch (e: any) {
+            console.error("Erro ao compartilhar via WhatsApp:", e);
+            if (e.name !== 'AbortError') {
+              alert("Ocorreu um erro ao tentar compartilhar. O arquivo será baixado em seu dispositivo.");
+              pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
+            }
+          }
+        } else {
+          alert("O compartilhamento direto de arquivos não é suportado neste dispositivo/navegador. Iniciando download do arquivo.");
+          pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
+        }
+      } else {
+        pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
+      }
       
     } catch (error) {
       console.error("Erro ao gerar/compartilhar o PDF:", error);
@@ -1168,16 +1189,25 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
                         <button
                           type="button"
                           onClick={() => window.print()}
-                          className="flex items-center gap-2 py-2.5 px-4 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-amber-800 hover:text-stone-950 rounded-xl text-xs font-mono uppercase transition-colors"
+                          className="flex items-center justify-center gap-2 py-2.5 px-4 bg-stone-100 hover:bg-stone-200 border border-stone-300 text-amber-800 hover:text-stone-950 rounded-xl text-xs font-mono uppercase transition-colors"
                           disabled={isSharing}
                         >
                           <Printer className="w-4 h-4" /> Imprimir Documento
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleShare("a4-contract-page")}
+                          onClick={() => handleShare("a4-contract-page", "whatsapp")}
                           disabled={isSharing}
-                          className="flex items-center gap-2 py-2.5 px-5 bg-stone-950 hover:bg-stone-900 text-white font-bold rounded-xl text-xs font-mono uppercase transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                          className="flex items-center justify-center gap-2 py-2.5 px-4 bg-[#25D366] hover:bg-[#1DA851] text-white font-bold rounded-xl text-xs font-mono uppercase transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          {isSharing ? "Aguarde..." : "WhatsApp"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleShare("a4-contract-page", "download")}
+                          disabled={isSharing}
+                          className="flex items-center justify-center gap-2 py-2.5 px-5 bg-stone-950 hover:bg-stone-900 text-white font-bold rounded-xl text-xs font-mono uppercase transition-all shadow-md active:scale-[0.98] disabled:opacity-50"
                         >
                           {isSharing ? (
                             <>
@@ -1411,7 +1441,15 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleShare("a4-contract-page-fullscreen")}
+                      onClick={() => handleShare("a4-contract-page-fullscreen", "whatsapp")}
+                      disabled={isSharing}
+                      className="flex items-center gap-1.5 px-4.5 py-2 bg-[#25D366] hover:bg-[#1DA851] text-white font-bold rounded-lg text-xs font-mono uppercase transition-all shadow-md"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleShare("a4-contract-page-fullscreen", "download")}
                       disabled={isSharing}
                       className="flex items-center gap-1.5 px-4.5 py-2 bg-stone-950 hover:bg-stone-900 text-white font-bold rounded-lg text-xs font-mono uppercase transition-all shadow-md"
                     >
