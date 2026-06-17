@@ -542,12 +542,12 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
       }
 
       const options = {
-        scale: 2, // High resolution for print, safe for all mobile canvas limits (iOS Safari < 4096px)
+        scale: 1.5, // Reduced for mobile memory safety
         useCORS: true,
         logging: false,
         backgroundColor: "#ffffff",
         windowWidth: 794, 
-        onclone: (clonedDoc) => {
+        onclone: (clonedDoc: Document) => {
           // 1. Reset scale / transform styling of parent document so html2canvas computes original A4 dimensions flawlessly
           const parentElementClone = clonedDoc.getElementById(elementId);
           if (parentElementClone) {
@@ -663,9 +663,10 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
         pdf.save(`Contrato_VoltMotors_${selectedContract.id}.pdf`);
       }
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao gerar/compartilhar o PDF:", error);
-      alert("Houve um erro técnico ao gerar o PDF. Executando o fallback do sistema para impressão.");
+      const errDetail = error?.message || "Desconhecido";
+      alert(`Houve um erro técnico ao gerar o PDF (${errDetail}). Executando o fallback do sistema para impressão.`);
       window.print();
     } finally {
       // Restore live DOM styles after capture completes
