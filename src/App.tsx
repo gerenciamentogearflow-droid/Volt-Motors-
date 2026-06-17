@@ -18,16 +18,27 @@ import {
   Layers,
   Sparkles,
   UserPlus,
-  Trash2
+  Trash2,
+  Smartphone,
+  Download,
+  Laptop,
+  Plus,
+  Share2,
+  X
 } from "lucide-react";
 import DevDashboard from "./components/DevDashboard";
 import OwnerDashboard from "./components/OwnerDashboard";
 import SellerDashboard from "./components/SellerDashboard";
 import { User, Contract, ServiceReceipt, MaintenanceReminder } from "./types";
 
-// Imagens geradas localmente
-const LOGO_IMG_PATH = "/src/assets/images/volt_motors_perfect_logo_1781564242075.jpg";
-const BANNER_IMG_PATH = "/src/assets/images/banner_moto_eletrica_1781562438790.jpg";
+// Import images as ES modules to guarantee they are bundled properly in production
+// @ts-ignore
+import logoImg from "./assets/images/volt_motors_perfect_logo_1781564242075.jpg";
+// @ts-ignore
+import bannerImg from "./assets/images/banner_moto_eletrica_1781562438790.jpg";
+
+const LOGO_IMG_PATH = logoImg;
+const BANNER_IMG_PATH = bannerImg;
 
 
 export default function App() {
@@ -49,6 +60,71 @@ export default function App() {
       setRememberMe(true);
     }
   }, []);
+
+  // --- PWA INSTALLATION HOOKS & CONTROLS ---
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isAlreadyInstalled, setIsAlreadyInstalled] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
+  const [showInstallInstructions, setShowInstallInstructions] = useState(false);
+  const [isInstallDismissed, setIsInstallDismissed] = useState(() => {
+    return localStorage.getItem("volt_motors_install_dismissed") === "true";
+  });
+
+  useEffect(() => {
+    // 1. Detect if standalone
+    const isStandaloneMode = 
+      window.matchMedia("(display-mode: standalone)").matches || 
+      (window.navigator as any).standalone === true;
+    
+    setIsAlreadyInstalled(isStandaloneMode);
+
+    // 2. Detect iOS
+    const ua = window.navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    setIsIOSDevice(isIOS);
+
+    // 3. Handle beforeinstallprompt
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      console.log("PWA beforeinstallprompt captured!");
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+
+    // Listen for appinstalled
+    const handleAppInstalled = () => {
+      setIsAlreadyInstalled(true);
+      setDeferredPrompt(null);
+      localStorage.setItem("volt_motors_install_dismissed", "true");
+      console.log("PWA instalado com sucesso!");
+    };
+
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === "accepted") {
+        setIsAlreadyInstalled(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      setShowInstallInstructions(true);
+    }
+  };
+
+  const handleDismissInstall = () => {
+    setIsInstallDismissed(true);
+    localStorage.setItem("volt_motors_install_dismissed", "true");
+  };
   
   // States para fluxos e validações
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -560,6 +636,26 @@ export default function App() {
                   )}
                 </button>
               </form>
+
+              {/* PWA INSTALLATION BANNER FOR HOME SCREEN */}
+              {!isAlreadyInstalled && (
+                <div className="mt-8 pt-6 border-t border-stone-100 max-w-sm mx-auto w-full text-center">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-400 block mb-3 font-semibold">
+                    Aplicativo Showroom
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleInstallClick}
+                    className="w-full bg-stone-100 hover:bg-stone-200/80 text-stone-900 text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 border border-stone-200/50 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-sm font-sans"
+                  >
+                    <Smartphone className="w-4 h-4 text-amber-600" />
+                    <span>Instalar no Aparelho</span>
+                  </button>
+                  <p className="text-[10px] text-stone-400 font-light mt-2.5 leading-relaxed font-sans">
+                    Navegador Chrome, Safari, Edge ou Firefox de forma nativa. Suporta uso offline, inicialização super rápida e ícone exclusivo na tela de início.
+                  </p>
+                </div>
+              )}
             </div>
           </motion.div>
         ) : loggedInUser.isDev ? (
@@ -680,6 +776,168 @@ export default function App() {
           © 2026 Volt Motors Electric Mobility S.A.
         </p>
       </div>
+
+      {/* FLOATING PWA INSTALL ACTION BUTTON FOR ACTIVE LOGGED IN USERS (if not standalone and not dismissed) */}
+      {!isAlreadyInstalled && !isInstallDismissed && isLoggedIn && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="fixed bottom-6 right-6 md:right-8 bg-stone-900 border border-stone-800 text-white rounded-2xl p-4 shadow-2xl flex flex-col max-w-xs z-40 select-none antialiased"
+        >
+          <div className="flex justify-between items-start mb-2 text-left">
+            <span className="text-[10px] uppercase font-mono tracking-wider text-amber-400 font-bold">
+              Volt Motors App
+            </span>
+            <button 
+              onClick={handleDismissInstall}
+              className="text-stone-450 hover:text-white p-0.5 rounded transition-colors cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <p className="text-[11px] text-stone-300 font-light mb-3 leading-normal text-left">
+            Instale para obter desempenho ultra rápido e acesso direto da sua tela de início.
+          </p>
+          <button
+            onClick={handleInstallClick}
+            className="w-full bg-amber-500 hover:bg-amber-600 active:scale-95 text-stone-950 font-extrabold py-2 px-3 rounded-lg text-[11px] uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-all shadow-sm cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5" fill="currentColor" />
+            <span>Instalar Aplicativo</span>
+          </button>
+        </motion.div>
+      )}
+
+      {/* SHUTTER / DIALOG WITH STEP-BY-STEP PWA INSTALLATION INSTRUCTIONS */}
+      <AnimatePresence>
+        {showInstallInstructions && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-stone-950/70 backdrop-blur-md flex items-center justify-center p-4 z-50 pointer-events-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white border border-stone-200 rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl text-left"
+            >
+              <button
+                onClick={() => setShowInstallInstructions(false)}
+                className="absolute right-6 top-6 p-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-850 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-3.5 mb-5 select-none text-left">
+                <div className="p-2.5 bg-amber-500/15 border border-amber-500/25 rounded-2xl text-amber-600">
+                  <Smartphone className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-serif text-stone-900 font-bold">
+                    Instalar Volt Motors
+                  </h3>
+                  <p className="text-xs text-stone-500 font-sans">
+                    Guia de Instalação Rápida (PWA)
+                  </p>
+                </div>
+              </div>
+
+              {isIOSDevice ? (
+                // iOS Specific Safari Instructions
+                <div className="space-y-5 font-sans text-left">
+                  <p className="text-stone-605 text-xs font-light leading-relaxed">
+                    Siga estas instruções simples para instalar o Volt Motors diretamente no seu iPhone ou iPad usando o navegador Safari:
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {/* Passo 1 */}
+                    <div className="flex gap-4 text-left">
+                      <div className="flex-none w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 text-stone-850 flex items-center justify-center text-xs font-mono font-bold">
+                        1
+                      </div>
+                      <div className="text-xs text-stone-700 leading-relaxed pt-0.5">
+                        Toque no botão de <strong>Compartilhar</strong> <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-stone-100 border border-stone-200 rounded text-stone-800 font-bold"><Share2 className="w-3.5 h-3.5 inline" /></span> na barra inferior do Safari.
+                      </div>
+                    </div>
+
+                    {/* Passo 2 */}
+                    <div className="flex gap-4 text-left">
+                      <div className="flex-none w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 text-stone-850 flex items-center justify-center text-xs font-mono font-bold">
+                        2
+                      </div>
+                      <div className="text-xs text-stone-700 leading-relaxed pt-0.5">
+                        Role a lista de opções para baixo e selecione <strong>Adicionar à Tela de Início</strong> <span className="inline-flex items-center justify-center px-2 py-0.5 bg-stone-100 border border-stone-200 rounded text-stone-850 font-bold text-[10px] font-mono hover:scale-100">+</span>.
+                      </div>
+                    </div>
+
+                    {/* Passo 3 */}
+                    <div className="flex gap-4 text-left">
+                      <div className="flex-none w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 text-stone-850 flex items-center justify-center text-xs font-mono font-bold">
+                        3
+                      </div>
+                      <div className="text-xs text-stone-700 leading-relaxed pt-0.5">
+                        Digite o nome do aplicativo e toque em <strong>Adicionar</strong> no canto superior direito para salvar.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // General Instruction Fallback (Android Custom Browsers, Desktop Firefox, Safari Mac etc)
+                <div className="space-y-5 font-sans text-left">
+                  <p className="text-stone-606 text-xs font-light leading-relaxed">
+                    Seu navegador não disparou o prompt automático ou não possui essa função exposta. Siga os passos alternativos para fixar o app no seu dispositivo:
+                  </p>
+
+                  <div className="space-y-4">
+                    {/* Passo 1 */}
+                    <div className="flex gap-4 text-left">
+                      <div className="flex-none w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 text-stone-850 flex items-center justify-center text-xs font-mono font-bold">
+                        1
+                      </div>
+                      <div className="text-xs text-stone-700 leading-relaxed pt-0.5">
+                        Abra o menu de opções do seu navegador (clique nos <strong>três pontos verticais</strong> no canto direito da barra de navegação).
+                      </div>
+                    </div>
+
+                    {/* Passo 2 */}
+                    <div className="flex gap-4 text-left">
+                      <div className="flex-none w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 text-stone-850 flex items-center justify-center text-xs font-mono font-bold">
+                        2
+                      </div>
+                      <div className="text-xs text-stone-700 leading-relaxed pt-0.5">
+                        Selecione a alternativa de menu <strong>Instalar Aplicativo</strong> ou <strong>Adicionar à Tela de Início</strong>.
+                      </div>
+                    </div>
+
+                    {/* Passo 3 */}
+                    <div className="flex gap-4 text-left">
+                      <div className="flex-none w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/20 text-stone-850 flex items-center justify-center text-xs font-mono font-bold">
+                        3
+                      </div>
+                      <div className="text-xs text-stone-700 leading-relaxed pt-0.5">
+                        Confirme a operação no diálogo popup apresentado para receber o aplicativo com o ícone oficial em seu showroom!
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-8 pt-5 border-t border-stone-150 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowInstallInstructions(false)}
+                  className="bg-stone-900 hover:bg-stone-800 rounded-xl text-white font-bold py-2.5 px-6 text-xs uppercase tracking-wider cursor-pointer transition-colors"
+                >
+                  Entendi
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
