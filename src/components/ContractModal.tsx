@@ -156,6 +156,25 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
           </p>
         );
       }
+
+      if (selectedContract.tempoGarantia === "6 Meses") {
+        return (
+          <div className="space-y-2 text-justify">
+            <p>
+              A motocicleta elétrica possui garantia de 06 (seis) meses contra defeitos de fabricação, contados a partir da data da entrega.
+            </p>
+            <p>
+              Para manter a garantia válida, o cliente deverá realizar a primeira revisão após 30 (trinta) dias da compra e as demais revisões a cada 60 (sessenta) dias.
+            </p>
+            <p>
+              O não comparecimento para a revisão dentro do prazo de até 05 (cinco) dias corridos após a data prevista acarretará a perda da garantia.
+            </p>
+            <p>
+              As revisões são cobradas conforme a tabela de serviços vigente e não estão incluídas na garantia.
+            </p>
+          </div>
+        );
+      }
       
       if (selectedContract.tempoGarantia === "1 Ano") {
         return (
@@ -1012,6 +1031,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
                             className="w-full bg-stone-50 text-stone-900 border border-stone-200 focus:border-amber-500/50 rounded-2xl px-4 py-3 text-sm outline-none transition-all cursor-pointer"
                           >
                             <option value="3 Meses">3 Meses (Trimestral)</option>
+                            <option value="6 Meses">6 Meses (Semestral)</option>
                             <option value="1 Ano">1 Ano (Anual)</option>
                             <option value="2 Anos">2 Anos (Bienal)</option>
                             <option value="3 Anos">3 Anos</option>
