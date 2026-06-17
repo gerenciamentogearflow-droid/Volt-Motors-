@@ -251,6 +251,55 @@ export default function App() {
     return localStorage.getItem("volt_motors_active_logo_v2") || "";
   });
 
+  // --- SYNC FAVICON AND APP ICON WITH LOGO ---
+  useEffect(() => {
+    if (activeLogo) {
+      // Sync raw favicon
+      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = activeLogo;
+      
+      // Sync Apple Touch Icon (iOS Home Screen)
+      let appleLink: HTMLLinkElement | null = document.querySelector("link[rel='apple-touch-icon']");
+      if (!appleLink) {
+        appleLink = document.createElement('link');
+        appleLink.rel = 'apple-touch-icon';
+        document.head.appendChild(appleLink);
+      }
+      appleLink.href = activeLogo;
+
+      // Sync PWA Manifest dynamically for Android Home Screen
+      fetch('/manifest.json')
+        .then(response => response.json())
+        .then(manifest => {
+            manifest.icons = [
+              { src: activeLogo, sizes: "192x192", type: "image/png" },
+              { src: activeLogo, sizes: "512x512", type: "image/png" },
+              { src: activeLogo, sizes: "512x512", type: "image/png", purpose: "any maskable" }
+            ];
+            const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestBlobUrl = URL.createObjectURL(blob);
+            
+            let manifestLink: HTMLLinkElement | null = document.querySelector("link[rel='manifest']");
+            if (!manifestLink) {
+                manifestLink = document.createElement('link');
+                manifestLink.rel = 'manifest';
+                document.head.appendChild(manifestLink);
+            }
+            // Revoke old blob url if exists on the link to prevent memory leak
+            if (manifestLink.href.startsWith('blob:')) {
+                URL.revokeObjectURL(manifestLink.href);
+            }
+            manifestLink.href = manifestBlobUrl;
+        })
+        .catch(() => console.error("Could not load and inject dynamic manifest"));
+    }
+  }, [activeLogo]);
+
   const handleLogoUpdate = async (logoUrlOrBase64: string) => {
     setActiveLogo(logoUrlOrBase64);
     localStorage.setItem("volt_motors_active_logo_v2", logoUrlOrBase64);
