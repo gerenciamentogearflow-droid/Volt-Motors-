@@ -20,6 +20,24 @@
       "properties": {
         "logoUrl": { "type": "string" }
       }
+    },
+    "ShowroomMotorcycle": {
+      "title": "Showroom Motorcycle",
+      "description": "A motorcycle listed in the public showroom",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "brand": { "type": "string" },
+        "price": { "type": "number" },
+        "year": { "type": "number" },
+        "mileage": { "type": "number" },
+        "description": { "type": "string" },
+        "photoBase64": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "name", "brand", "price", "year", "status"]
     }
   },
   "firestore": {
@@ -30,6 +48,10 @@
     "config/app": {
       "schema": "AppConfig",
       "description": "App configuration"
+    },
+    "showroom/{motorcycleId}": {
+      "schema": "ShowroomMotorcycle",
+      "description": "Public showroom motorcycles"
     }
   }
 }

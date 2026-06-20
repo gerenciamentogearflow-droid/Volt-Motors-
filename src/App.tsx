@@ -31,6 +31,7 @@ import {
 import DevDashboard from "./components/DevDashboard";
 import OwnerDashboard from "./components/OwnerDashboard";
 import SellerDashboard from "./components/SellerDashboard";
+import PublicShowroom from "./components/PublicShowroom";
 import { User, Contract, ServiceReceipt, MaintenanceReminder } from "./types";
 
 // Import images as ES modules to guarantee they are bundled properly in production
@@ -228,8 +229,10 @@ export default function App() {
     });
   };
 
-  // Definitve Logo
-  const [activeLogo, setActiveLogo] = useState<string>("");
+  // Definitive Logo
+  const [activeLogo, setActiveLogo] = useState<string>(() => {
+    return localStorage.getItem("volt_motors_cached_logo") || "/logo.jpg";
+  });
 
   // --- SYNC WITH FIREBASE (LOGO) ---
   useEffect(() => {
@@ -241,6 +244,7 @@ export default function App() {
           const data = logoSnap.data();
           if (data.url) {
             setActiveLogo(data.url);
+            localStorage.setItem("volt_motors_cached_logo", data.url);
           }
         }
       }, (error) => {
@@ -373,10 +377,7 @@ export default function App() {
 
   // Lista de filiais representativas da Volt Motors
   const branches = [
-    { id: "SP_JARDINS", name: "São Paulo - Jardins (Matriz)", location: "Av. Europa, 1200" },
-    { id: "RJ_BARRA", name: "Rio de Janeiro - Barra da Tijuca", location: "Av. das Américas, 4500" },
-    { id: "PR_BATEL", name: "Curitiba - Batel", location: "Av. do Batel, 1600" },
-    { id: "MG_SAVASSI", name: "Belo Horizonte - Savassi", location: "Rua Sergipe, 900" },
+    { id: "MATRIZ", name: "Volt Transportes Elétricos (Matriz)", location: "Av. Rui Barbosa, 819 - Patrocínio, MG" },
   ];
 
   // Credenciais padrões para o Demo
@@ -535,6 +536,13 @@ export default function App() {
     setPassword("");
     setEmail("");
   };
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const isPublicShowroom = urlParams.get("page") === "showroom";
+
+  if (isPublicShowroom) {
+    return <PublicShowroom activeLogo={activeLogo} />;
+  }
 
   return (
     <div id="app-root" className="min-h-screen bg-gradient-to-br from-white via-stone-300 to-stone-900 text-stone-900 flex items-center justify-center font-sans overflow-x-hidden relative antialiased print:bg-white print:overflow-visible print:min-h-0 print:block pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
@@ -803,6 +811,8 @@ export default function App() {
             contractSequence={contractSequence}
             saveContractSequence={saveContractSequence}
             activeLogo={activeLogo}
+            users={users}
+            saveUsers={saveUsers}
           />
         ) : (
           <SellerDashboard 

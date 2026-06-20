@@ -49,4 +49,23 @@ export interface MaintenanceReminder {
   createdAt: string;
 }
 
+export interface ShowroomMotorcycle {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  year: number;
+  mileage?: number;
+  description?: string;
+  subtitle?: string;
+  installments?: string;
+  fuel?: string;
+  power?: string;
+  speed?: string;
+  color?: string;
+  photoBase64?: string;
+  status: 'available' | 'sold';
+  createdAt: number;
+}
+
 

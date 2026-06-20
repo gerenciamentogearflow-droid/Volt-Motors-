@@ -563,8 +563,6 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
       const scale = 1.8;
       const options = {
         bgcolor: "#ffffff",
-        width: 794,
-        height: 1123,
         style: {
           transform: `scale(${scale})`,
           transformOrigin: 'top left',

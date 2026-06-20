@@ -4,6 +4,7 @@ import { FileText, LogOut, Wrench } from "lucide-react";
 import { Contract, MaintenanceReminder } from "../types";
 import ContractModal from "./ContractModal";
 import MaintenanceModal from "./MaintenanceModal";
+import ShowroomManagementModal from "./ShowroomManagementModal";
 
 interface SellerDashboardProps {
   handleLogout: () => void;
@@ -30,6 +31,7 @@ export default function SellerDashboard({
 }: SellerDashboardProps) {
   const [showContract, setShowContract] = useState(false);
   const [showMaintenance, setShowMaintenance] = useState(false);
+  const [showShowroomConfig, setShowShowroomConfig] = useState(false);
 
   // Stats for the visual counters
   const myContracts = contracts.filter(c => c.sellerEmail === user.email);
@@ -52,10 +54,27 @@ export default function SellerDashboard({
             Consultor: <span className="font-bold text-amber-600">{user.name}</span>
           </p>
         </div>
-        <button onClick={handleLogout} className="flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors mt-1 cursor-pointer">
-            <LogOut className="w-4 h-4" />
-            <span className="text-xs font-mono uppercase tracking-widest">Sair</span>
-        </button>
+        <div className="flex flex-col items-end">
+          <button onClick={handleLogout} className="flex items-center gap-2 text-stone-400 hover:text-stone-800 transition-colors mt-1 cursor-pointer mb-3">
+              <LogOut className="w-4 h-4" />
+              <span className="text-xs font-mono uppercase tracking-widest">Sair</span>
+          </button>
+          <div className="flex gap-2">
+            <a 
+              href="?page=showroom" 
+              target="_blank" 
+              className="px-3 py-1.5 border border-stone-200 rounded text-[10px] font-mono text-stone-500 hover:bg-stone-50 hover:text-stone-900 transition-colors cursor-pointer uppercase tracking-wider"
+            >
+              Ver Site
+            </a>
+            <button 
+              onClick={() => setShowShowroomConfig(true)}
+              className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-mono hover:bg-amber-100 transition-colors cursor-pointer uppercase tracking-wider hidden sm:block"
+            >
+              Gerir Showroom Site
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 select-none">
@@ -123,6 +142,10 @@ export default function SellerDashboard({
             currentUser={user}
             onClose={() => setShowMaintenance(false)}
           />
+        )}
+
+        {showShowroomConfig && (
+          <ShowroomManagementModal onClose={() => setShowShowroomConfig(false)} />
         )}
       </AnimatePresence>
 
