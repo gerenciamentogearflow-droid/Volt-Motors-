@@ -12,7 +12,7 @@ export default function ProfessionalFooter({ className = "", isLight = false }: 
       className={`w-full max-w-lg mx-auto px-6 py-12 border-t text-center select-none rounded-[2rem] shadow-2xl transition-all duration-300 ${
         isLight 
           ? "border-stone-200 bg-stone-50/90 text-stone-700" 
-          : "border-[#2e261a]/40 bg-[#0a0a0a]/80 backdrop-blur-md text-[#a8a192]"
+          : "border-[#2e261a]/40 bg-[#0a0a0a]/95 text-[#a8a192]"
       } ${className}`}
     >
       <div className="flex flex-col gap-6 text-center">

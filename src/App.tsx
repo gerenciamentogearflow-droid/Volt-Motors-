@@ -610,11 +610,7 @@ export default function App() {
   return (
     <div id="app-root" className="min-h-screen bg-gradient-to-br from-white via-stone-300 to-stone-900 text-stone-900 flex items-center justify-center font-sans overflow-x-hidden relative antialiased print:bg-white print:overflow-visible print:min-h-0 print:block pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
       {/* Background Decorative Ambient Lights do Immersive UI */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[550px] h-[550px] bg-amber-500/5 rounded-full blur-[130px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[450px] h-[450px] bg-stone-200/40 rounded-full blur-[110px]" />
-        <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-amber-500/5 rounded-full blur-[100px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[1px] bg-gradient-to-r from-transparent via-amber-500/10 to-transparent rotate-[35deg]" />
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 bg-[#0f0f0f]">
       </div>
 
       {/* Visual Accents do Immersive UI das extremidades da página */}
@@ -630,9 +626,9 @@ export default function App() {
         {!isLoggedIn ? (
           <motion.div
             key="login-view"
-            initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-6xl mx-auto min-h-[680px] m-4 bg-white border border-stone-200/80 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.06)] overflow-hidden grid lg:grid-cols-12 relative z-10"
           >
@@ -694,20 +690,6 @@ export default function App() {
               {/* Logo Corporativa Volt Motors de Alta Costura */}
               <div className="flex flex-col items-center text-center mb-8 select-none relative">
                 
-                {/* Camadas de Iluminação Premium (Glow Effects) */}
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: [0.08, 0.2, 0.08], scale: [1, 1.15, 1] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-0 bg-stone-500/10 blur-[80px] rounded-full z-0 translate-y-[-10%]"
-                />
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.2 }}
-                  transition={{ delay: 0.8, duration: 3 }}
-                  className="absolute inset-0 bg-stone-900/40 blur-[50px] rounded-full scale-50 z-0"
-                />
-
                 {/* Logo original com efeito de corte circular */}
                 {activeLogo ? (
                   <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center overflow-hidden rounded-full border border-stone-700 bg-stone-900 shadow-xl shadow-black/40">
@@ -715,7 +697,7 @@ export default function App() {
                       src={activeLogo}
                       alt="Volt Motors Logo"
                       referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover mix-blend-multiply filter contrast-125 brightness-[1.05]"
+                      className="w-full h-full object-cover"
                       onError={() => {
                         if (activeLogo !== "/logo.jpg") {
                           setActiveLogo("/logo.jpg");
@@ -907,7 +889,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50 pointer-events-auto"
+            className="fixed inset-0 bg-stone-900/90 flex items-center justify-center p-4 z-50 pointer-events-auto"
           >
             <motion.div
               initial={{ scale: 0.95, y: 10 }}
@@ -1002,7 +984,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-stone-950/70 backdrop-blur-md flex items-center justify-center p-4 z-50 pointer-events-auto"
+            className="fixed inset-0 bg-stone-950/95 flex items-center justify-center p-4 z-50 pointer-events-auto"
           >
             <motion.div
               initial={{ scale: 0.95, y: 15 }}

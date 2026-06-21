@@ -59,7 +59,7 @@ export default function UsersManagementModal({ onClose, users, saveUsers }: User
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 pb-20 sm:pb-6 overflow-y-auto bg-stone-900/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 pb-20 sm:pb-6 overflow-y-auto bg-stone-900/90">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -67,7 +67,7 @@ export default function UsersManagementModal({ onClose, users, saveUsers }: User
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
         className="bg-white border-t sm:border border-stone-200/80 sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] w-full max-w-xl mx-auto flex flex-col mt-auto sm:mt-0 max-h-[90vh] absolute bottom-0 sm:relative rounded-t-3xl"
       >
-        <div className="p-6 border-b border-stone-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10 sm:rounded-t-3xl rounded-t-3xl">
+        <div className="p-6 border-b border-stone-100 flex items-center justify-between sticky top-0 bg-white shadow-sm z-10 sm:rounded-t-3xl rounded-t-3xl">
           <div className="flex flex-col">
             <h2 className="text-xl font-serif text-stone-900 tracking-wide font-bold">Gestão de Acessos</h2>
             <p className="text-xs text-stone-500 mt-1 font-mono uppercase">Controle de Usuários</p>
@@ -204,7 +204,7 @@ export default function UsersManagementModal({ onClose, users, saveUsers }: User
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm"
+                  className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/80"
               >
                   <div className="bg-white p-6 rounded-3xl max-w-sm w-full shadow-2xl border border-red-100">
                       <h3 className="text-lg font-serif font-bold text-stone-900 mb-2">Excluir usuário?</h3>

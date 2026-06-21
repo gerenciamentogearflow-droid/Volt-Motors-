@@ -83,9 +83,9 @@ export default function DevDashboard({
   return (
     <motion.div
       key="dev-dashboard"
-      initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
-      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      exit={{ opacity: 0, y: -20, filter: "blur(4px)" }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="w-full max-w-5xl mx-auto m-4 bg-white border border-stone-200 rounded-3xl p-6 sm:p-10 shadow-lg relative z-10 text-left"
     >
@@ -319,7 +319,7 @@ export default function DevDashboard({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-stone-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+                    className="fixed inset-0 bg-stone-900/90 z-50 flex items-center justify-center p-4"
                 >
                     <div className="bg-white border border-stone-250 p-6 rounded-3xl w-full max-w-sm space-y-4 shadow-2xl">
                         <h3 className="text-lg text-stone-900 font-serif font-bold">Excluir {userToDelete.name}?</h3>

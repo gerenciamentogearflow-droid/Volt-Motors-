@@ -854,7 +854,7 @@ export default function ShowroomManagementModal({
                         );
                       })()}
                       {moto.status === "sold" && (
-                        <div className="absolute inset-0 bg-stone-900/10 flex items-center justify-center backdrop-blur-[1px]">
+                        <div className="absolute inset-0 bg-stone-900/10 flex items-center justify-center">
                           <span className="bg-stone-800 text-white text-xs font-bold px-2 py-1 rounded">
                             OCULTO
                           </span>
