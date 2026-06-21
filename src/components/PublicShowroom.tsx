@@ -595,7 +595,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 <img
                   src={activeLogo}
                   alt="Volt Motors Logo"
-                  className="w-16 h-16 md:w-20 md:h-20 object-contain block mx-auto"
+                  className="w-16 h-16 md:w-20 md:h-20 object-cover block mx-auto rounded-full shadow-sm"
                   onError={(e) => {
                     const imgEl = e.currentTarget;
                     if (imgEl.src !== window.location.origin + "/logo.jpg" && imgEl.src !== "/logo.jpg") {
