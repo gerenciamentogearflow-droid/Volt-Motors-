@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { FileText, LogOut, Wrench } from "lucide-react";
+import { FileText, LogOut, Wrench, Share2 } from "lucide-react";
 import { Contract, MaintenanceReminder } from "../types";
 import ContractModal from "./ContractModal";
 import MaintenanceModal from "./MaintenanceModal";
@@ -60,18 +60,29 @@ export default function SellerDashboard({
               <span className="text-xs font-mono uppercase tracking-widest">Sair</span>
           </button>
           <div className="flex gap-2">
-            <a 
-              href="?page=showroom" 
-              target="_blank" 
-              className="px-3 py-1.5 border border-stone-200 rounded text-[10px] font-mono text-stone-500 hover:bg-stone-50 hover:text-stone-900 transition-colors cursor-pointer uppercase tracking-wider"
+            <button 
+              onClick={() => {
+                const url = `${window.location.origin}?page=showroom`;
+                if (navigator.share) {
+                  navigator.share({
+                    title: 'Showroom Volt Motors',
+                    url: url
+                  }).catch(console.error);
+                } else {
+                  navigator.clipboard.writeText(url);
+                  alert("Link do Showroom copiado para a área de transferência!");
+                }
+              }}
+              className="px-3 py-1.5 flex items-center gap-1.5 border border-stone-200 rounded text-[10px] font-mono text-stone-500 hover:bg-stone-50 hover:text-stone-900 transition-colors cursor-pointer uppercase tracking-wider"
             >
-              Ver Site
-            </a>
+              <Share2 className="w-3.5 h-3.5 text-amber-600" />
+              Copiar Link
+            </button>
             <button 
               onClick={() => setShowShowroomConfig(true)}
               className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded text-[10px] font-mono hover:bg-amber-100 transition-colors cursor-pointer uppercase tracking-wider hidden sm:block"
             >
-              Gerir Showroom Site
+              Editar Showroom
             </button>
           </div>
         </div>

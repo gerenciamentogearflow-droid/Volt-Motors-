@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { FileText, LogOut, Wrench, DollarSign, Users, Eye, Settings, Briefcase, Award } from "lucide-react";
+import { FileText, LogOut, Wrench, DollarSign, Users, Eye, Settings, Briefcase, Award, Share2 } from "lucide-react";
 import { Contract, ServiceReceipt, MaintenanceReminder, User } from "../types";
 import ContractModal from "./ContractModal";
 import MaintenanceModal from "./MaintenanceModal";
@@ -95,20 +95,30 @@ export default function OwnerDashboard({
           {/* Action Controls */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex gap-2.5 w-full sm:w-auto">
-              <a 
-                href="?page=showroom" 
-                target="_blank" 
+              <button 
+                onClick={() => {
+                  const url = `${window.location.origin}?page=showroom`;
+                  if (navigator.share) {
+                    navigator.share({
+                      title: 'Showroom Volt Motors',
+                      url: url
+                    }).catch(console.error);
+                  } else {
+                    navigator.clipboard.writeText(url);
+                    alert("Link do Showroom copiado para a área de transferência!");
+                  }
+                }}
                 className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-mono text-stone-700 hover:text-black hover:bg-stone-50 hover:border-[#d4af37] transition-all cursor-pointer uppercase tracking-wider font-bold shadow-sm"
               >
-                <Eye className="w-3.5 h-3.5 text-[#d4af37]" />
-                Ver Site
-              </a>
+                <Share2 className="w-3.5 h-3.5 text-[#d4af37]" />
+                Copiar Link
+              </button>
               <button 
                 onClick={() => setShowShowroomConfig(true)}
                 className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-[#b59344] to-[#d4af37] text-white rounded-xl text-xs font-mono hover:brightness-105 transition-all cursor-pointer uppercase tracking-wider font-extrabold shadow-[0_2px_12px_rgba(212,175,55,0.2)]"
               >
                 <Settings className="w-3.5 h-3.5 animate-spin-slow" />
-                Gerar Showroom
+                Editar Showroom
               </button>
             </div>
 

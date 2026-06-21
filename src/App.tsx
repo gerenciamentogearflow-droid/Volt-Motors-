@@ -892,16 +892,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Rodapé institucional flutuante no final da página se houver espaço */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center pointer-events-none select-none hidden md:block z-20">
-        <p className="text-stone-600 text-[9px] uppercase tracking-[0.3em] font-light">
-          Volt Motors — v2.4.0
-        </p>
-        <p className="text-stone-700 text-[8px] mt-1 font-mono uppercase tracking-widest">
-          © 2026 Volt Motors Electric Mobility S.A.
-        </p>
-      </div>
-
       {/* FLOATING PWA INSTALL ACTION BUTTON FOR ACTIVE LOGGED IN USERS (if not standalone and not dismissed) */}
       {!isAlreadyInstalled && !isInstallDismissed && isLoggedIn && (
         <motion.div

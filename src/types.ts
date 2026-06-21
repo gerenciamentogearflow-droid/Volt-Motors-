@@ -57,15 +57,18 @@ export interface ShowroomMotorcycle {
   year: number;
   mileage?: number;
   description?: string;
-  subtitle?: string;
+  range?: string;
   installments?: string;
   fuel?: string;
   power?: string;
   speed?: string;
-  color?: string;
-  photoBase64?: string;
+  color?: string; // Main backward compability color (could be the first variant)
+  photoBase64?: string; // Main backward compability photo
+  gallery?: string[]; // Main backward compatibility gallery
+  variants?: { colorName: string, colorHex?: string, photoBase64: string, gallery: string[] }[];
   status: 'available' | 'sold';
   createdAt: number;
+  order?: number;
 }
 
 
