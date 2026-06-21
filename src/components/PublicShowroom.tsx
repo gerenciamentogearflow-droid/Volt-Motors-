@@ -836,9 +836,6 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
                 return (
                   <>
-                    {/* Radial heat glow effect behind the vehicle */}
-                    <div className="absolute w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05)_0%,transparent_65%)] pointer-events-none" />
-
                     {currentPhotoSrc ? (
                       <>
                         <AnimatePresence>
@@ -973,7 +970,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 </div>
                 {selectedMoto.installments && (
                   <div className="text-lg font-mono font-extrabold text-[#d4af37] mt-2 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37] animate-ping" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
                     {selectedMoto.installments}
                   </div>
                 )}
@@ -985,7 +982,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
             </div>
 
             {/* Destaques Técnicos - Bento Grid Shineray style */}
-            <div className="px-5 py-8 bg-black/40">
+            <div className="px-5 py-8 bg-[#050505]">
               <h3 className="text-white font-serif font-bold text-lg uppercase tracking-wider mb-5 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#d4af37]" />
                 Atributos Mecânicos
@@ -1160,7 +1157,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
               {/* Concessionária info */}
               <div className="mt-8 bg-black p-5.5 rounded-2xl border border-[#2e261a] text-white flex gap-4 select-none shadow-xl">
-                <div className="p-2.5 bg-gradient-to-br from-[#1c1811] to-[#2b2214] rounded-xl text-[#d4af37] w-fit shrink-0 self-start border border-[#d4af37]/25 animate-pulse">
+                <div className="p-2.5 bg-gradient-to-br from-[#1c1811] to-[#2b2214] rounded-xl text-[#d4af37] w-fit shrink-0 self-start border border-[#d4af37]/25">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
