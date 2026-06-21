@@ -580,111 +580,86 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
     >
       {/* Faixa Branca do Cabeçalho - Largura Total */}
       {!selectedMoto && (
-        <header className="w-full bg-white border-b border-stone-200 py-3 px-4 relative z-20 shadow-sm">
-          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Logo e Nome da Marca */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
-              {activeLogo ? (
-                <img
-                  src={activeLogo}
-                  alt="Volt Motors Logo"
-                  className="w-16 h-16 md:w-20 md:h-20 object-cover block mx-auto rounded-full shadow-sm"
-                  onError={(e) => {
-                    const imgEl = e.currentTarget;
-                    if (imgEl.src !== window.location.origin + "/logo.jpg" && imgEl.src !== "/logo.jpg") {
-                      imgEl.src = "/logo.jpg";
-                    }
-                  }}
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-xl bg-stone-950 flex items-center justify-center shadow-md mx-auto">
-                  <span className="text-[#d4af37] font-serif font-black text-xl italic">
-                    V
-                  </span>
-                </div>
-              )}
-              <div>
-                <span className="block text-lg md:text-xl font-mono font-black tracking-[0.2em] text-stone-900 uppercase">
-                  VOLT MOTORS
-                </span>
-                <span className="block text-[9px] md:text-[10px] font-mono tracking-widest text-[#a8a192] uppercase mt-0.5">
-                  Mobilidade Elétrica & Inovação
-                </span>
-              </div>
+        <header className="w-full bg-[#050505] border-b border-[#2e261a]/60 pt-16 pb-12 px-4 relative z-20 flex flex-col items-center text-center shadow-2xl">
+          {/* Luz de fundo suave e premium */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.05)_0%,transparent_70%)] pointer-events-none" />
+          
+          {/* Logo Maior e Centralizada */}
+          {activeLogo ? (
+            <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full overflow-hidden shadow-[0_10px_50px_rgba(0,0,0,0.8)] mb-8 relative flex items-center justify-center bg-black border border-[#2e261a]">
+              <img
+                src={activeLogo}
+                alt="Volt Motors Logo"
+                className="w-full h-full object-cover scale-[1.02]"
+                onError={(e) => {
+                  const imgEl = e.currentTarget;
+                  if (imgEl.src !== window.location.origin + "/logo.jpg" && imgEl.src !== "/logo.jpg") {
+                    imgEl.src = "/logo.jpg";
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-[#0a0a0a] flex flex-col items-center justify-center shadow-[0_10px_50px_rgba(0,0,0,0.8)] mb-8 relative px-4 border border-[#2e261a]">
+              <span className="font-display italic font-black text-6xl sm:text-7xl tracking-tighter text-[#d4af37]">
+                Volt
+              </span>
+            </div>
+          )}
+
+          {/* Nome da Marca e Subtítulo */}
+          <h1 className="text-2xl sm:text-3xl font-mono font-black tracking-[0.4em] text-[#f4efe6] uppercase relative z-10 drop-shadow-md">
+            VOLT MOTORS
+          </h1>
+          <p className="text-[10px] sm:text-[11px] font-mono tracking-widest text-[#d4af37] uppercase mt-3 mb-10 relative z-10 font-bold drop-shadow-md">
+            Mobilidade Elétrica & Inovação
+          </p>
+
+          {/* Endereço e Contatos centralizados */}
+          <div className="flex flex-col items-center gap-5 text-[#f4efe6] font-sans w-full max-w-md relative z-10">
+            {/* Matriz Address */}
+            <div className="flex flex-col items-center">
+              <span className="block text-[10px] font-sans tracking-widest text-[#a8a192] uppercase font-bold mb-1">
+                MATRIZ
+              </span>
+              <p className="font-medium text-[#f4efe6] text-[13px] sm:text-sm tracking-tight mb-4">
+                Av. Rui Barbosa, 819 - Patrocínio, MG
+              </p>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Av.+Rui+Barbosa,+819,+Patrocínio,+Minas+Gerais"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-[#d4af37] bg-[#1a1710] hover:bg-[#252014] px-5 py-2.5 rounded-xl transition-colors border border-[#d4af37]/30 shadow-md"
+              >
+                <MapPin className="w-3.5 h-3.5" />
+                MAPS
+              </a>
             </div>
 
-            {/* Vertical Divider (Visible on desktop) */}
-            <div className="hidden md:block w-[1px] h-10 bg-stone-200" />
-
-            {/* Endereço e Contatos das Lojas */}
-            <div className="flex flex-col gap-2.5 text-center md:text-left text-stone-800 font-sans w-full md:w-auto mt-2 md:mt-0">
-              {/* Matriz Address */}
-              <div className="flex items-center gap-3 justify-center md:justify-start text-left">
-                <div className="p-1.5 border border-stone-200/60 bg-stone-50 rounded-full shrink-0 shadow-sm hidden sm:block">
-                  <MapPin className="w-3.5 h-3.5 text-stone-700" />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                  <div>
-                    <span className="block text-[8px] font-sans tracking-widest text-stone-500 uppercase font-bold sm:mb-0.5">
-                      MATRIZ
-                    </span>
-                    <p className="font-medium text-stone-800 text-xs tracking-tight">
-                      Av. Rui Barbosa, 819 - Patrocínio, MG
-                    </p>
-                  </div>
-                  <a
-                    href="https://www.google.com/maps/search/?api=1&query=Av.+Rui+Barbosa,+819,+Patrocínio,+Minas+Gerais"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[8px] uppercase tracking-widest font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded-md transition-colors border border-amber-200/60 mt-1 sm:mt-0 self-center hidden sm:flex"
-                  >
-                    <MapPin className="w-2.5 h-2.5" />
-                    Maps
-                  </a>
-                </div>
-              </div>
-
-              {/* Email & Contact Rows */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5 justify-center md:justify-start pt-1">
-                {/* E-mail */}
-                <div className="flex items-center gap-1.5 hidden sm:flex">
-                  <Mail className="w-3 h-3 text-stone-400" />
-                  <a
-                    href="mailto:volttransportes@yahoo.com"
-                    className="text-[9px] text-stone-600 font-medium hover:text-stone-900 transition-colors"
-                  >
-                    volttransportes@yahoo.com
-                  </a>
-                </div>
-
-                {/* WhatsApp Contacts */}
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-2 text-[9px] font-mono font-bold uppercase tracking-wider text-[#25d366]">
-                    <a
-                      href="https://wa.me/5534997416132?text=Olá Bruno, tenho interesse em um veículo do showroom."
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 hover:bg-[#25d366]/10 px-2.5 py-1 rounded-md transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
-                    >
-                      <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-                      </svg>
-                      Bruno
-                    </a>
-                    <a
-                      href="https://wa.me/5534993343463?text=Olá Fabiano, tenho interesse em um veículo do showroom."
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 hover:bg-[#25d366]/10 px-2.5 py-1 rounded-md transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
-                    >
-                      <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-                      </svg>
-                      Fabiano
-                    </a>
-                  </div>
-                </div>
-              </div>
+            {/* WhatsApp Contacts */}
+            <div className="flex items-center gap-3 mt-2">
+              <a
+                href="https://wa.me/5534997416132?text=Olá Bruno, tenho interesse em um veículo do showroom."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-[#25d366] hover:bg-[#25d366]/10 px-4 py-2.5 rounded-lg transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
+              >
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                </svg>
+                BRUNO
+              </a>
+              <a
+                href="https://wa.me/5534993343463?text=Olá Fabiano, tenho interesse em um veículo do showroom."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-[#25d366] hover:bg-[#25d366]/10 px-4 py-2.5 rounded-lg transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
+              >
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                </svg>
+                FABIANO
+              </a>
             </div>
           </div>
         </header>
@@ -768,7 +743,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
         ) : (
           /* DETALHE DO VEÍCULO - ESTILO MODERN COM TEMA ESCURO E LUZES QUENTES */
           <div
-            className="w-full max-w-lg mx-auto flex flex-col min-h-[100dvh]"
+            className="w-full max-w-lg mx-auto flex flex-col min-h-screen bg-[#080808] relative"
           >
             {/* Header fixo da página de produto */}
             <div className="sticky top-0 z-40 bg-black/95 py-5 border-b border-[#2e261a]/60 px-4">
@@ -969,7 +944,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Potência */}
-                <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between transform-gpu">
+                <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between overflow-hidden relative z-0">
                   <Zap className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -987,7 +962,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 </div>
 
                 {/* Velocidade Máx */}
-                <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between transform-gpu">
+                <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between overflow-hidden relative z-0">
                   <Gauge className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1005,7 +980,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 </div>
 
                 {/* Transmissão */}
-                <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between transform-gpu">
+                <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between overflow-hidden relative z-0">
                   <Disc className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1025,7 +1000,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
                 {/* Tipo de Bateria */}
                 {selectedMoto.batteryType && (
-                    <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between transform-gpu">
+                    <div className="bg-[#121212] border border-[#2e261a] p-5 rounded-2xl flex flex-col justify-between overflow-hidden relative z-0">
                       <BatteryCharging className="w-6 h-6 text-[#d4af37]" />
                       <div className="mt-4">
                         <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">

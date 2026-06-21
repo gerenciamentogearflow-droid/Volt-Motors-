@@ -692,12 +692,12 @@ export default function App() {
                 
                 {/* Logo original com efeito de corte circular */}
                 {activeLogo ? (
-                  <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 flex items-center justify-center overflow-hidden rounded-full border border-stone-700 bg-stone-900 shadow-xl shadow-black/40">
+                  <div className="relative z-10 w-56 h-56 sm:w-72 sm:h-72 flex items-center justify-center overflow-hidden rounded-full shadow-[0_10px_50px_rgba(0,0,0,0.8)] border border-[#2e261a] bg-black">
                     <img
                       src={activeLogo}
                       alt="Volt Motors Logo"
                       referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover scale-[1.02]"
                       onError={() => {
                         if (activeLogo !== "/logo.jpg") {
                           setActiveLogo("/logo.jpg");
@@ -706,12 +706,9 @@ export default function App() {
                     />
                   </div>
                 ) : (
-                  <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 flex flex-col items-center justify-center rounded-full border border-stone-800 bg-stone-900 shadow-xl shadow-black/40 p-4">
-                    <span className="font-display italic font-black text-5xl tracking-tighter text-white">
+                  <div className="relative z-10 w-56 h-56 sm:w-72 sm:h-72 flex flex-col items-center justify-center rounded-full border border-[#2e261a] bg-[#0a0a0a] shadow-[0_10px_50px_rgba(0,0,0,0.8)] p-4">
+                    <span className="font-display italic font-black text-6xl sm:text-7xl tracking-tighter text-[#d4af37]">
                       Volt
-                    </span>
-                    <span className="font-display text-[10px] tracking-[0.55em] text-stone-500 uppercase font-black mr-[-0.55em] mt-2">
-                      MOTORS
                     </span>
                   </div>
                 )}
