@@ -27,6 +27,8 @@ export default function ProfessionalFooter({ className = "", isLight = false }: 
             Nossa plataforma <span className="font-semibold text-rose-400">não realiza vendas diretas</span> ou transações financeiras online. 
             Para efetuar qualquer compra, simulação de parcelamento ou tirar dúvidas, por favor, entre em contato diretamente com nossos representantes autorizados no WhatsApp: 
             fale com o <span className={`font-semibold ${isLight ? "text-stone-900" : "text-[#d4af37]"}`}>Bruno</span> ou o <span className={`font-semibold ${isLight ? "text-stone-900" : "text-[#d4af37]"}`}>Fabiano</span>.
+            <br /><br />
+            <span className="font-semibold text-rose-400/90">Aviso de Segurança:</span> Todos os pagamentos referentes às compras são realizados <span className="font-semibold text-rose-400/90">exclusivamente de forma presencial</span> em nossa loja física, a fim de evitar qualquer tipo de golpe ou fraude. A Volt Transportes Elétricos não se responsabiliza por eventuais prejuízos financeiros decorrentes de transações externas ou golpes virtuais.
           </p>
         </div>
 
@@ -53,19 +55,16 @@ export default function ProfessionalFooter({ className = "", isLight = false }: 
         <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/20 to-transparent mx-auto"></div>
 
         {/* Creator / Developer Credits (Mafran Souza Junior) */}
-        <div id="developer-credits" className="space-y-1 pt-1">
-          <p className="text-[10px] font-sans text-stone-500 uppercase tracking-widest">
-            Desenvolvido com excelência por
+        <div id="developer-credits" className="space-y-0.5 pt-1 opacity-60">
+          <p className="text-[7px] font-sans text-stone-500 uppercase tracking-widest">
+            Desenvolvido por
           </p>
-          <p className={`text-[13px] font-sans font-bold tracking-wider uppercase ${isLight ? "text-stone-900" : "text-[#eedec2]"}`}>
+          <p className={`text-[9px] font-sans font-bold tracking-wider uppercase ${isLight ? "text-stone-900" : "text-[#eedec2]"}`}>
             Mafran Souza Junior
           </p>
-          <p className="text-[10px] font-sans text-stone-400 mt-1">
-            Programador & Desenvolvedor de Software
-          </p>
-          <div className="flex items-center justify-center gap-1 text-[11px] font-mono text-[#d4af37] font-semibold mt-1 bg-[#1a150e]/40 py-1.5 px-3 rounded-lg border border-[#d4af37]/15 w-fit mx-auto shadow-inner">
-            <Phone className="w-3.5 h-3.5 animate-pulse" />
-            Contato: <span className="select-all underline">(31) 98613-8576</span>
+          <div className="flex items-center justify-center gap-0.5 text-[8px] font-mono text-[#d4af37] font-medium opacity-80">
+            <Phone className="w-2 h-2" />
+            <span className="select-all">(31) 98613-8576</span>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { collection, onSnapshot, doc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { ShowroomMotorcycle } from "../types";
 import { motion, AnimatePresence } from "motion/react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
   ArrowLeft,
   Zap,
@@ -442,6 +443,21 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
+  const activeVariant =
+    selectedMoto?.variants && selectedMoto.variants.length > 0
+      ? selectedMoto.variants[selectedColorIndex]
+      : {
+          colorName: selectedMoto?.color || "",
+          photoBase64: selectedMoto?.photoBase64 || "",
+          gallery: selectedMoto?.gallery || [],
+        };
+
+  const allPhotos = activeVariant?.photoBase64
+    ? [activeVariant.photoBase64, ...(activeVariant.gallery || [])]
+    : activeVariant?.gallery || [];
+
+  const totalPhotos = allPhotos.length;
+
   useEffect(() => {
     if (selectedMoto) {
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -472,12 +488,12 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
       if (isLeftSwipe) {
         // Next image
         setCurrentGalleryIndex((prev) =>
-          prev === (selectedMoto?.gallery?.length || 0) ? 0 : prev + 1,
+          prev >= totalPhotos - 1 ? 0 : prev + 1,
         );
       } else {
         // Previous image
         setCurrentGalleryIndex((prev) =>
-          prev === 0 ? selectedMoto?.gallery?.length || 0 : prev - 1,
+          prev <= 0 ? totalPhotos - 1 : prev - 1,
         );
       }
     }
@@ -524,19 +540,19 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
   // Auto-slide gallery every 5 seconds
   useEffect(() => {
-    if (!selectedMoto) return;
+    if (!selectedMoto || totalPhotos <= 1) return;
 
     // Clear the interval if dragging to avoid jumping while user is swiping
     if (touchStart !== null) return;
 
     const interval = setInterval(() => {
       setCurrentGalleryIndex((prev) =>
-        prev === (selectedMoto?.gallery?.length || 0) ? 0 : prev + 1,
+        prev >= totalPhotos - 1 ? 0 : prev + 1,
       );
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [selectedMoto, currentGalleryIndex, touchStart]);
+  }, [selectedMoto, touchStart, totalPhotos]);
 
   return (
     <div
@@ -661,20 +677,31 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
             {/* Endereço e Contatos das Lojas */}
             <div className="flex flex-col gap-4 text-center md:text-left text-stone-800 font-sans w-full md:w-auto mt-4 md:mt-0">
               {/* Matriz Address */}
-              <div className="flex items-start gap-3 justify-center md:justify-start">
-                <div className="p-2 border border-stone-200/60 bg-stone-50 rounded-lg shrink-0 mt-0.5">
-                  <MapPin className="w-4 h-4 text-stone-700" />
+              <div className="flex items-start gap-4 justify-center md:justify-start text-left">
+                <div className="p-2.5 border border-stone-200/60 bg-stone-50 rounded-full shrink-0 shadow-sm">
+                  <MapPin className="w-5 h-5 text-stone-700" />
                 </div>
                 <div>
                   <span className="block text-[9px] font-sans tracking-widest text-stone-500 uppercase font-black mb-1">
                     LOCALIZAÇÃO — MATRIZ
                   </span>
-                  <p className="font-semibold text-stone-800 text-xs tracking-tight">
-                    Av. Rui Barbosa, 819
-                  </p>
-                  <p className="text-stone-500 text-[10px] uppercase tracking-wider">
-                    Patrocínio, Minas Gerais
-                  </p>
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=Av.+Rui+Barbosa,+819,+Patrocínio,+Minas+Gerais"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block"
+                  >
+                    <p className="font-semibold text-stone-800 text-sm tracking-tight group-hover:text-amber-600 transition-colors">
+                      Av. Rui Barbosa, 819
+                    </p>
+                    <p className="text-stone-500 text-[10px] uppercase tracking-wider group-hover:text-amber-600/70 transition-colors mb-2">
+                      Patrocínio, Minas Gerais
+                    </p>
+                    <div className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-bold text-amber-700 bg-amber-50 group-hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors border border-amber-200/60">
+                      <MapPin className="w-3 h-3" />
+                      Abrir no Maps
+                    </div>
+                  </a>
                 </div>
               </div>
 
@@ -691,26 +718,30 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                   </a>
                 </div>
 
-                {/* Phone Dials */}
+                {/* WhatsApp Contacts */}
                 <div className="flex items-center gap-3">
-                  <Smartphone className="w-3.5 h-3.5 text-stone-400" />
-                  <div className="flex gap-3 text-[10px] font-mono text-stone-600 font-semibold">
+                  <div className="flex gap-3 text-[10px] font-mono font-bold uppercase tracking-widest text-[#25d366]">
                     <a
-                      href="https://wa.me/5534997416132"
+                      href="https://wa.me/5534997416132?text=Olá Bruno, tenho interesse em um veículo do showroom."
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-stone-900 transition-colors flex items-center gap-1"
+                      className="flex items-center gap-2 hover:bg-[#25d366]/10 px-3 py-1.5 rounded-lg transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
                     >
-                      Bruno: (34) 99741-6132
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                      </svg>
+                      Bruno
                     </a>
-                    <span className="text-stone-300">|</span>
                     <a
-                      href="https://wa.me/5534993343463"
+                      href="https://wa.me/5534993343463?text=Olá Fabiano, tenho interesse em um veículo do showroom."
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-stone-900 transition-colors flex items-center gap-1"
+                      className="flex items-center gap-2 hover:bg-[#25d366]/10 px-3 py-1.5 rounded-lg transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
                     >
-                      Fabiano: (34) 99334-3463
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+                      </svg>
+                      Fabiano
                     </a>
                   </div>
                 </div>
@@ -847,23 +878,6 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
               onTouchEnd={onTouchEnd}
             >
               {(() => {
-                const activeVariant =
-                  selectedMoto?.variants && selectedMoto.variants.length > 0
-                    ? selectedMoto.variants[selectedColorIndex]
-                    : {
-                        colorName: selectedMoto?.color || "",
-                        photoBase64: selectedMoto?.photoBase64 || "",
-                        gallery: selectedMoto?.gallery || [],
-                      };
-
-                const allPhotos = activeVariant?.photoBase64
-                  ? [
-                      activeVariant.photoBase64,
-                      ...(activeVariant.gallery || []),
-                    ]
-                  : activeVariant?.gallery || [];
-
-                const totalPhotos = allPhotos.length;
                 const currentPhotoSrc =
                   totalPhotos > 0
                     ? allPhotos[
@@ -915,7 +929,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setCurrentGalleryIndex((prev) =>
-                                  prev === 0 ? totalPhotos - 1 : prev - 1,
+                                  prev <= 0 ? totalPhotos - 1 : prev - 1,
                                 );
                               }}
                               className="absolute left-1 top-1/2 -translate-y-1/2 p-2 text-[#d4af37] drop-shadow-md transition-opacity z-20 cursor-pointer"
@@ -926,7 +940,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setCurrentGalleryIndex((prev) =>
-                                  prev === totalPhotos - 1 ? 0 : prev + 1,
+                                  prev >= totalPhotos - 1 ? 0 : prev + 1,
                                 );
                               }}
                               className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-[#d4af37] drop-shadow-md transition-opacity z-20 cursor-pointer"
@@ -963,11 +977,6 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                   </>
                 );
               })()}
-
-              {/* Status Badge */}
-              <div className="absolute top-4 right-4 bg-gradient-to-r from-[#b59344] to-[#d4af37] text-black text-[9px] font-mono font-extrabold tracking-widest px-3 py-1.5 uppercase rounded-lg shadow-lg z-20">
-                Showroom Oficial
-              </div>
             </div>
 
             <div className="px-5 py-8 bg-[#0c0c0c] border-b border-[#231a0e] relative">
@@ -1286,74 +1295,48 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setFullscreenImage(null)}
             className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
           >
             <button
               onClick={() => setFullscreenImage(null)}
-              className="absolute top-4 right-4 p-2 text-white/50 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all"
+              className="absolute top-4 right-4 p-2 text-white/50 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all z-[110]"
             >
               <X className="w-8 h-8" />
             </button>
-            <motion.img
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              src={fullscreenImage}
-              alt="Fullscreen view"
-              className="w-full h-full object-contain cursor-zoom-out"
-            />
+            
+            <div className="w-full h-full" onClick={(e) => {
+              // Only close if clicking the backdrop, not the image itself
+              if (e.target === e.currentTarget) {
+                setFullscreenImage(null);
+              }
+            }}>
+              <TransformWrapper
+                initialScale={1}
+                minScale={0.5}
+                maxScale={5}
+                centerOnInit={true}
+                wheel={{ step: 0.1 }}
+                pinch={{ step: 5 }}
+                doubleClick={{ mode: "zoomIn" }}
+              >
+                <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
+                  <motion.img
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    src={fullscreenImage}
+                    alt="Fullscreen view"
+                    className="max-w-[100vw] max-h-[100vh] object-contain cursor-move"
+                  />
+                </TransformComponent>
+              </TransformWrapper>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Botões WhatsApp Fixos (mostrado apenas quando na lista geral para conversas diretas) */}
-      {!selectedMoto && (
-        <>
-          <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-1.5">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#25d366] bg-[#0b0b0b]/80 px-2 py-1 rounded-md backdrop-blur-sm border border-[#1f1a12] shadow-lg">
-              Bruno
-            </span>
-            <a
-              href="https://wa.me/5534997416132?text=Olá Bruno, tenho interesse em um veículo do showroom."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-12 h-12 sm:w-14 sm:h-14 bg-black/40 text-[#25d366] border border-[#25d366]/40 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-[#25d366]/20 hover:border-[#25d366] hover:scale-110 active:scale-95 transition-all"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-6 h-6 sm:w-7 sm:h-7 shrink-0"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-              </svg>
-            </a>
-          </div>
 
-          <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-1.5">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#25d366] bg-[#0b0b0b]/80 px-2 py-1 rounded-md backdrop-blur-sm border border-[#1f1a12] shadow-lg">
-              Fabiano
-            </span>
-            <a
-              href="https://wa.me/5534993343463?text=Olá Fabiano, tenho interesse em um veículo do showroom."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-12 h-12 sm:w-14 sm:h-14 bg-black/40 text-[#25d366] border border-[#25d366]/40 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg hover:bg-[#25d366]/20 hover:border-[#25d366] hover:scale-110 active:scale-95 transition-all"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-6 h-6 sm:w-7 sm:h-7 shrink-0"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-              </svg>
-            </a>
-          </div>
-        </>
-      )}
     </div>
   );
 }
