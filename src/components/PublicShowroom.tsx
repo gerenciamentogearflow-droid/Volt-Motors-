@@ -993,7 +993,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Potência */}
-                <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
+                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
                   <Zap className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1011,7 +1011,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 </div>
 
                 {/* Velocidade Máx */}
-                <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
+                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
                   <Gauge className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1029,7 +1029,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 </div>
 
                 {/* Transmissão */}
-                <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
+                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
                   <Disc className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1049,7 +1049,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
                 {/* Tipo de Bateria */}
                 {selectedMoto.batteryType && (
-                    <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
+                    <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
                       <BatteryCharging className="w-6 h-6 text-[#d4af37]" />
                       <div className="mt-4">
                         <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1101,7 +1101,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
               </h3>
 
               {selectedMoto.description && (
-                <p className="text-xs text-stone-400 mb-6 bg-[#0f0f0f] p-4.5 border border-[#2e261a]/60 rounded-xl leading-relaxed italic select-none">
+                <p className="text-xs text-stone-400 mb-6 bg-[#0f0f0f] p-4 sm:p-5 border border-[#2e261a]/60 rounded-xl leading-relaxed italic select-none">
                   "{selectedMoto.description}"
                 </p>
               )}

@@ -1428,7 +1428,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
                     <button
                       type="button"
                       onClick={confirmSaveDraft}
-                      className="flex items-center gap-1.5 px-4.5 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg text-xs font-mono uppercase tracking-widest transition-all shadow-md"
+                      className="flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-lg text-xs font-mono uppercase tracking-widest transition-all shadow-md"
                     >
                       <CheckCircle className="w-4 h-4" /> Finalizar e Gerar Oficial
                     </button>
@@ -1445,7 +1445,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
                       type="button"
                       onClick={() => handleShare("a4-contract-page-fullscreen", "whatsapp")}
                       disabled={isSharing}
-                      className="flex items-center gap-1.5 px-4.5 py-2 bg-[#25D366] hover:bg-[#1DA851] text-white font-bold rounded-lg text-xs font-mono uppercase transition-all shadow-md"
+                      className="flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-[#25D366] hover:bg-[#1DA851] text-white font-bold rounded-lg text-xs font-mono uppercase transition-all shadow-md"
                     >
                       <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                     </button>
@@ -1453,7 +1453,7 @@ export default function ContractModal({ onClose, contracts, onSaveContract, curr
                       type="button"
                       onClick={() => handleShare("a4-contract-page-fullscreen", "download")}
                       disabled={isSharing}
-                      className="flex items-center gap-1.5 px-4.5 py-2 bg-stone-950 hover:bg-stone-900 text-white font-bold rounded-lg text-xs font-mono uppercase transition-all shadow-md"
+                      className="flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-stone-950 hover:bg-stone-900 text-white font-bold rounded-lg text-xs font-mono uppercase transition-all shadow-md"
                     >
                       {isSharing ? (
                         <>
