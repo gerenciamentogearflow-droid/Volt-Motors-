@@ -4,7 +4,7 @@
   "description": "Gestão e Emissão de Contratos de Compra e Venda da Volt Motors.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0c0a09",
+  "background_color": "#ffffff",
   "theme_color": "#0c0a09",
   "orientation": "portrait-primary",
   "icons": [
