@@ -281,7 +281,7 @@ function MotoListItemCard({
           <img
             src={mainPhoto}
             alt={moto.name}
-            className="w-full h-auto max-h-[340px] sm:max-h-[380px] md:max-h-[420px] object-contain mix-blend-multiply block group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+            className="w-full h-auto max-h-[340px] sm:max-h-[380px] md:max-h-[420px] object-contain block group-hover:scale-[1.03] transition-transform duration-700 ease-out"
           />
         ) : (
           <div className="w-full aspect-[4/3] flex flex-col items-center justify-center text-stone-600 bg-stone-900/50 gap-2">
@@ -324,7 +324,7 @@ function MotoListItemCard({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.4)_100%)] pointer-events-none" />
 
         {/* Year / Specs Tag */}
-        <div className="absolute top-4 left-4 bg-black/80 border border-[#d4af37]/30 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-[#f4efe6] font-mono tracking-wider z-20">
+        <div className="absolute top-4 left-4 bg-black/80 border border-[#d4af37]/30 px-3 py-1 rounded-full text-[10px] text-[#f4efe6] font-mono tracking-wider z-20">
           Ano {moto.year}
         </div>
 
@@ -595,7 +595,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 <img
                   src={activeLogo}
                   alt="Volt Motors Logo"
-                  className="w-16 h-16 md:w-20 md:h-20 object-contain block mx-auto mix-blend-multiply filter brightness-150 contrast-125"
+                  className="w-16 h-16 md:w-20 md:h-20 object-contain block mx-auto"
                   onError={(e) => {
                     const imgEl = e.currentTarget;
                     if (imgEl.src !== window.location.origin + "/logo.jpg" && imgEl.src !== "/logo.jpg") {
@@ -737,7 +737,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                   </span>
                 </div>
               ) : motorcycles.length === 0 ? (
-                <div className="text-center py-16 bg-[#121212]/70 border border-[#262117] rounded-3xl p-8 shadow-2xl relative overflow-hidden backdrop-blur-sm">
+                <div className="text-center py-16 bg-[#121212]/90 border border-[#262117] rounded-3xl p-8 shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent" />
                   <Sparkles className="w-8 h-8 text-[#d4af37]/40 mx-auto mb-4" />
                   <h3 className="text-lg font-bold text-white mb-2 font-serif">
@@ -792,7 +792,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
             className="w-full max-w-lg mx-auto flex flex-col min-h-screen relative z-10"
           >
             {/* Header fixo da página de produto */}
-            <div className="sticky top-0 z-40 bg-black/95 backdrop-blur-md py-5 border-b border-[#2e261a]/60 px-4">
+            <div className="sticky top-0 z-40 bg-black/95 py-5 border-b border-[#2e261a]/60 px-4">
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => {
@@ -993,7 +993,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Potência */}
-                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
+                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors">
                   <Zap className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1011,7 +1011,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 </div>
 
                 {/* Velocidade Máx */}
-                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
+                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors">
                   <Gauge className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1029,7 +1029,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 </div>
 
                 {/* Transmissão */}
-                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
+                <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors">
                   <Disc className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
                     <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1049,7 +1049,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
 
                 {/* Tipo de Bateria */}
                 {selectedMoto.batteryType && (
-                    <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors relative transform-gpu">
+                    <div className="bg-[#121212] border border-[#2e261a]/70 p-5 rounded-2xl flex flex-col justify-between shadow-md hover:border-[#d4af37]/30 transition-colors">
                       <BatteryCharging className="w-6 h-6 text-[#d4af37]" />
                       <div className="mt-4">
                         <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
@@ -1180,7 +1180,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
             </div>
 
             {/* CTA Negociação Bar */}
-            <div className="bg-[#050505]/95 backdrop-blur-xl p-4 sm:p-5 border-t border-[#2e261a]/60 shadow-2xl fixed bottom-0 left-0 right-0 max-w-lg mx-auto z-50">
+            <div className="bg-[#050505] p-4 sm:p-5 border-t border-[#2e261a]/60 shadow-2xl fixed bottom-0 left-0 right-0 max-w-lg mx-auto z-50">
               <p className="text-center text-[10px] text-stone-400 font-mono tracking-widest uppercase mb-3 font-semibold">
                 Falar com Consultor
               </p>
@@ -1216,7 +1216,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
+            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 sm:p-8"
           >
             <button
               onClick={() => setFullscreenImage(null)}

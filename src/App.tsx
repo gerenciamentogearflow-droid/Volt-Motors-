@@ -585,7 +585,7 @@ export default function App() {
               <img 
                 src={activeLogo} 
                 alt="Volt Motors" 
-                className="w-full h-full object-cover mix-blend-multiply filter brightness-[1.05] contrast-125" 
+                className="w-full h-full object-cover" 
                 onError={() => {
                   if (activeLogo !== "/logo.jpg") {
                     setActiveLogo("/logo.jpg");
