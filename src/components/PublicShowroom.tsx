@@ -568,22 +568,27 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
   return (
     <div
       ref={scrollContainerRef}
-      className="min-h-screen text-white font-sans w-full absolute inset-0 overflow-y-auto relative selection:bg-[#d4af37] selection:text-black overflow-x-hidden"
-      style={{
-        backgroundColor: "#08080a",
-        backgroundImage: `
-          radial-gradient(ellipse at 30% 0%, rgba(255, 180, 100, 0.12) 0%, transparent 60%),
-          radial-gradient(ellipse at 70% 0%, rgba(255, 160, 80, 0.10) 0%, transparent 60%),
-          radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
-          linear-gradient(to bottom, rgba(50, 50, 54, 0.90) 0%, rgba(20, 20, 23, 0.96) 30%, rgba(8, 8, 10, 1) 100%), 
-          url('https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?q=80&w=2000&auto=format&fit=crop')`,
-        backgroundSize: "100% 100%, 100% 100%, 100% 100%, cover, cover",
-        backgroundPosition: "top, top, bottom, center, center",
-        backgroundAttachment: "fixed, fixed, fixed, fixed, fixed",
-        backgroundBlendMode: "screen, screen, screen, normal, normal",
-      }}
+      className="min-h-screen text-white font-sans w-full absolute inset-0 overflow-y-auto relative selection:bg-[#d4af37] selection:text-black overflow-x-hidden bg-[#0a0a0c]"
     >
-      {/* Decorative Floating Background Elements Removed */}
+      {/* Background layer without fixed/blend-mode bugs on mobile */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
+        style={{
+          backgroundImage: "url('https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?q=80&w=2000&auto=format&fit=crop')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div 
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse at 30% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+            radial-gradient(ellipse at 70% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
+            linear-gradient(to bottom, transparent 0%, #08080a 100%)
+          `
+        }}
+      />
 
       {/* Faixa Branca do Cabeçalho - Largura Total */}
       {!selectedMoto && (
