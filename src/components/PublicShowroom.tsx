@@ -540,8 +540,8 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (selectedMoto && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
+    if (selectedMoto) {
+      window.scrollTo({
         top: 0,
         left: 0,
         behavior: "instant",
@@ -568,28 +568,19 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
   return (
     <div
       ref={scrollContainerRef}
-      className="min-h-screen text-white font-sans w-full absolute inset-0 overflow-y-auto relative selection:bg-[#d4af37] selection:text-black overflow-x-hidden bg-[#0a0a0c]"
+      className="min-h-screen text-white font-sans w-full relative selection:bg-[#d4af37] selection:text-black bg-[#0a0a0c]"
+      style={{
+        backgroundImage: `
+          radial-gradient(ellipse at 30% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+          radial-gradient(ellipse at 70% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
+          linear-gradient(to bottom, transparent 0%, #08080a 100%)
+        `,
+        backgroundSize: "100% 100%",
+        backgroundPosition: "top",
+        backgroundAttachment: "scroll",
+        backgroundRepeat: "no-repeat",
+      }}
     >
-      {/* Background layer without fixed/blend-mode bugs on mobile */}
-      <div 
-        className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
-        style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?q=80&w=2000&auto=format&fit=crop')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-      <div 
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: `
-            radial-gradient(ellipse at 30% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 70% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 60%),
-            linear-gradient(to bottom, transparent 0%, #08080a 100%)
-          `
-        }}
-      />
-
       {/* Faixa Branca do Cabeçalho - Largura Total */}
       {!selectedMoto && (
         <header className="w-full bg-white border-b border-stone-200 py-3 px-4 relative z-20 shadow-sm">
