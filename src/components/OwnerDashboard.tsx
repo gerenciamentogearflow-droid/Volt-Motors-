@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { FileText, LogOut, Wrench, DollarSign, Users, Eye, Settings, Briefcase, Award, Share2 } from "lucide-react";
+import { FileText, LogOut, Wrench, DollarSign, Users, Eye, Settings, Briefcase, Award, Share2, AlertCircle } from "lucide-react";
 import { Contract, ServiceReceipt, MaintenanceReminder, User } from "../types";
 import ContractModal from "./ContractModal";
 import MaintenanceModal from "./MaintenanceModal";
@@ -22,6 +22,8 @@ interface OwnerDashboardProps {
   activeLogo: string;
   users: User[];
   saveUsers: (users: User[]) => void;
+  isMaintenanceMode?: boolean;
+  toggleMaintenanceMode?: (state: boolean) => void;
 }
 
 export default function OwnerDashboard({
@@ -37,7 +39,9 @@ export default function OwnerDashboard({
   saveContractSequence,
   activeLogo,
   users,
-  saveUsers
+  saveUsers,
+  isMaintenanceMode,
+  toggleMaintenanceMode
 }: OwnerDashboardProps) {
   const [showContract, setShowContract] = useState(false);
   const [showMaintenance, setShowMaintenance] = useState(false);
@@ -108,23 +112,31 @@ export default function OwnerDashboard({
                     alert("Link do Showroom copiado para a área de transferência!");
                   }
                 }}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-mono text-stone-700 hover:text-black hover:bg-stone-50 hover:border-[#d4af37] transition-all cursor-pointer uppercase tracking-wider font-bold shadow-sm"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 border border-stone-200 rounded-xl text-xs font-mono text-stone-700 hover:text-black hover:bg-stone-50 hover:border-[#d4af37] transition-all cursor-pointer uppercase tracking-wider font-bold shadow-sm"
               >
                 <Share2 className="w-3.5 h-3.5 text-[#d4af37]" />
-                Copiar Link
+                Link
               </button>
               <button 
                 onClick={() => setShowShowroomConfig(true)}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-[#b59344] to-[#d4af37] text-white rounded-xl text-xs font-mono hover:brightness-105 transition-all cursor-pointer uppercase tracking-wider font-extrabold shadow-[0_2px_12px_rgba(212,175,55,0.2)]"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 bg-gradient-to-r from-[#b59344] to-[#d4af37] text-white rounded-xl text-xs font-mono hover:brightness-105 transition-all cursor-pointer uppercase tracking-wider font-extrabold shadow-[0_2px_12px_rgba(212,175,55,0.2)]"
               >
-                <Settings className="w-3.5 h-3.5 animate-spin-slow" />
-                Editar Showroom
+                <Settings className="w-3.5 h-3.5" />
+                Editar
+              </button>
+              <button 
+                onClick={() => toggleMaintenanceMode?.(!isMaintenanceMode)}
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer uppercase tracking-wider font-extrabold shadow-[0_2px_12px_rgba(0,0,0,0.1)] ${isMaintenanceMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white'}`}
+                title={isMaintenanceMode ? "Colocar Site No Ar" : "Tirar Site do Ar"}
+              >
+                <AlertCircle className="w-3.5 h-3.5" />
+                {isMaintenanceMode ? "Publicar Site" : "Tirar do Ar"}
               </button>
             </div>
 
             <button 
               onClick={handleLogout} 
-              className="flex items-center justify-center gap-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50/50 transition-all cursor-pointer border border-stone-100 px-4 py-2.5 rounded-xl w-full sm:w-auto bg-white"
+              className="flex items-center justify-center gap-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50/50 transition-all cursor-pointer border border-stone-100 px-3 py-2 rounded-xl w-full sm:w-auto bg-white"
             >
               <LogOut className="w-4 h-4" />
               <span className="text-xs font-mono uppercase tracking-widest font-bold">Encerrar</span>

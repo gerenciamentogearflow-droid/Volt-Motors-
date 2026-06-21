@@ -234,6 +234,30 @@ export default function App() {
     return localStorage.getItem("volt_motors_cached_logo") || "/logo.jpg";
   });
 
+  // --- SYNC WITH FIREBASE (SYSTEM SETTINGS) ---
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  useEffect(() => {
+    import("firebase/firestore").then(({ doc, onSnapshot }) => {
+      const systemDocRef = doc(db, "settings", "system");
+      const unsubscribeSystem = onSnapshot(systemDocRef, (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          setIsMaintenanceMode(!!data.isMaintenanceMode);
+        }
+      });
+      return () => unsubscribeSystem();
+    });
+  }, []);
+
+  const toggleMaintenanceMode = async (newState: boolean) => {
+    try {
+      await setDoc(doc(db, "settings", "system"), { isMaintenanceMode: newState }, { merge: true });
+    } catch (error) {
+      console.error("Erro ao alterar modo de manutenção:", error);
+      alert("Não foi possível alterar o status do site.");
+    }
+  };
+
   // --- SYNC WITH FIREBASE (LOGO) ---
   useEffect(() => {
     // Sync Logo em tempo real usando onSnapshot
@@ -541,6 +565,24 @@ export default function App() {
   const isPublicShowroom = urlParams.get("page") === "showroom";
 
   if (isPublicShowroom) {
+    if (isMaintenanceMode && !loggedInUser?.isDev && loggedInUser?.role !== 'owner') {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[100dvh] bg-stone-950 text-[#f4efe6] p-6 text-center">
+          <div className="w-24 h-24 mb-8 border border-stone-800 rounded-full flex items-center justify-center bg-stone-900 shadow-xl p-4">
+            {activeLogo ? (
+              <img src={activeLogo} alt="Volt Motors" className="w-full h-full object-contain brightness-125 filter" />
+            ) : (
+              <Layers className="w-8 h-8 text-amber-500" />
+            )}
+          </div>
+          <h1 className="text-3xl font-serif mb-3 tracking-wide">Showroom em Atualização</h1>
+          <p className="text-stone-400 max-w-md text-sm leading-relaxed mb-6 font-light">
+            Nossa plataforma está passando por manutenções programadas para melhor atendê-lo. Por favor, retorne em alguns instantes.
+          </p>
+          <div className="w-16 h-[1px] bg-amber-500/50 mx-auto"></div>
+        </div>
+      );
+    }
     return <PublicShowroom activeLogo={activeLogo} />;
   }
 
@@ -790,6 +832,8 @@ export default function App() {
             handleLogout={handleLogout}
             users={users}
             saveUsers={saveUsers}
+            isMaintenanceMode={isMaintenanceMode}
+            toggleMaintenanceMode={toggleMaintenanceMode}
             onResetSales={() => {
               if (window.confirm("Atenção! Esta ação apagará TODOS os contratos emitidos. Deseja continuar?")) {
                 saveContracts([]);
@@ -813,6 +857,8 @@ export default function App() {
             activeLogo={activeLogo}
             users={users}
             saveUsers={saveUsers}
+            isMaintenanceMode={isMaintenanceMode}
+            toggleMaintenanceMode={toggleMaintenanceMode}
           />
         ) : (
           <SellerDashboard 

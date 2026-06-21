@@ -21,10 +21,7 @@ import {
   MapPin,
   Mail,
   Smartphone,
-  Leaf,
   BatteryCharging,
-  Wind,
-  Globe2,
   X,
   Volume2,
   VolumeX,
@@ -332,9 +329,9 @@ function MotoListItemCard({
         </div>
 
         {/* Detail hover badge */}
-        <div className="absolute bottom-3 right-3 bg-gradient-to-r from-[#b59344] to-[#d4af37] text-black px-3 py-1 rounded-lg text-[9px] font-mono tracking-widest font-black uppercase opacity-90 group-hover:opacity-100 transition-opacity flex items-center gap-1 shadow-md z-20">
+        <div className="absolute bottom-4 right-4 bg-gradient-to-r from-[#b59344] to-[#d4af37] text-black px-4 py-2 rounded-xl text-[10px] font-mono tracking-widest font-black uppercase opacity-90 group-hover:opacity-100 transition-all flex items-center gap-1.5 shadow-lg shadow-black/50 z-20">
           Ver Ficha Técnica
-          <ChevronRight className="w-2.5 h-2.5 stroke-[3px]" />
+          <ChevronRight className="w-3 h-3 stroke-[3px]" />
         </div>
       </div>
 
@@ -369,34 +366,33 @@ function MotoListItemCard({
         )}
 
         {/* Quick Spec Highlights Pills */}
-        <div className="grid grid-cols-3 gap-2.5 mb-5 mt-2 bg-black/40 p-2.5 rounded-xl border border-[#211d16]">
+        <div className={`grid ${moto.batteryType ? 'grid-cols-3' : 'grid-cols-2'} gap-2.5 mb-5 mt-2 bg-black/40 p-2.5 rounded-xl border border-[#211d16]`}>
           <div className="text-center py-1 overflow-hidden">
-            <span className="block text-[8px] font-mono text-stone-500 uppercase tracking-wider">
+            <span className="block text-[10px] font-mono text-stone-500 uppercase tracking-wider">
               Potência
             </span>
             <span className="text-[11px] font-mono text-white font-bold truncate block">
               {moto.power || specs.power}
             </span>
           </div>
-          <div className="text-center py-1 border-x border-[#211d16] overflow-hidden">
-            <span className="block text-[8px] font-mono text-stone-500 uppercase tracking-wider">
+          <div className="text-center py-1 border-l border-[#211d16] overflow-hidden">
+            <span className="block text-[10px] font-mono text-stone-500 uppercase tracking-wider">
               Km
             </span>
             <span className="text-[11px] font-mono text-white font-bold truncate block">
-              {moto.mileage} KM
+              {moto.mileage}
             </span>
           </div>
-          <div className="text-center py-1 overflow-hidden">
-            <span className="block text-[8px] font-mono text-stone-500 uppercase tracking-wider">
-              Combustível
-            </span>
-            <span
-              className="text-[10px] sm:text-[11px] font-mono text-[#d4af37] font-bold block px-1 leading-tight whitespace-normal break-words"
-              title={moto.fuel || specs.fuel}
-            >
-              {moto.fuel || specs.fuel}
-            </span>
-          </div>
+          {moto.batteryType && (
+            <div className="text-center py-1 border-l border-[#211d16] overflow-hidden">
+              <span className="block text-[10px] font-mono text-stone-500 uppercase tracking-wider">
+                Bateria
+              </span>
+              <span className="text-[11px] font-mono text-[#d4af37] font-bold truncate block max-w-full">
+                {moto.batteryType}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Price Section */}
@@ -557,14 +553,14 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
   return (
     <div
       ref={scrollContainerRef}
-      className="min-h-screen text-[#f4efe6] font-sans w-full absolute inset-0 overflow-y-auto relative selection:bg-[#d4af37] selection:text-black overflow-x-hidden"
+      className="min-h-screen text-white font-sans w-full absolute inset-0 overflow-y-auto relative selection:bg-[#d4af37] selection:text-black overflow-x-hidden"
       style={{
-        backgroundColor: "#101012",
+        backgroundColor: "#08080a",
         backgroundImage: `
-          radial-gradient(ellipse at 30% 0%, rgba(255, 180, 100, 0.15) 0%, transparent 60%),
-          radial-gradient(ellipse at 70% 0%, rgba(255, 160, 80, 0.12) 0%, transparent 60%),
-          radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
-          linear-gradient(to bottom, rgba(60, 60, 64, 0.85) 0%, rgba(25, 25, 28, 0.95) 30%, rgba(12, 12, 14, 1) 100%), 
+          radial-gradient(ellipse at 30% 0%, rgba(255, 180, 100, 0.12) 0%, transparent 60%),
+          radial-gradient(ellipse at 70% 0%, rgba(255, 160, 80, 0.10) 0%, transparent 60%),
+          radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+          linear-gradient(to bottom, rgba(50, 50, 54, 0.90) 0%, rgba(20, 20, 23, 0.96) 30%, rgba(8, 8, 10, 1) 100%), 
           url('https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?q=80&w=2000&auto=format&fit=crop')`,
         backgroundSize: "100% 100%, 100% 100%, 100% 100%, cover, cover",
         backgroundPosition: "top, top, bottom, center, center",
@@ -572,162 +568,91 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
         backgroundBlendMode: "screen, screen, screen, normal, normal",
       }}
     >
-      {/* Decorative Floating Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div
-          animate={{ y: [0, -15, 0], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[25%] left-[5%] md:left-[10%] flex flex-col items-center gap-2 opacity-30 select-none"
-        >
-          <div className="w-12 h-12 rounded-full border border-[#d4af37]/20 flex items-center justify-center bg-[#d4af37]/5 backdrop-blur-sm">
-            <Leaf className="w-5 h-5 text-[#d4af37]" />
-          </div>
-          <span className="text-[9px] uppercase tracking-[0.2em] font-mono text-[#a8a192]">
-            Zero Emissão
-          </span>
-        </motion.div>
-
-        <motion.div
-          animate={{ y: [0, 20, 0], opacity: [0.2, 0.4, 0.2] }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-          className="absolute top-[45%] right-[5%] md:right-[15%] flex flex-col items-center gap-2 opacity-30 select-none"
-        >
-          <div className="w-16 h-16 rounded-full border border-emerald-500/20 flex items-center justify-center bg-emerald-500/5 backdrop-blur-sm">
-            <BatteryCharging className="w-6 h-6 text-emerald-400" />
-          </div>
-          <span className="text-[9px] uppercase tracking-[0.2em] font-mono text-emerald-500/70">
-            Baixo Custo
-          </span>
-        </motion.div>
-
-        <motion.div
-          animate={{ y: [0, -10, 0], opacity: [0.15, 0.3, 0.15] }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2.5,
-          }}
-          className="absolute top-[75%] left-[8%] md:left-[20%] flex flex-col items-center gap-2 opacity-30 select-none"
-        >
-          <div className="w-14 h-14 rounded-full border border-sky-400/20 flex items-center justify-center bg-sky-400/5 backdrop-blur-sm">
-            <Wind className="w-6 h-6 text-sky-400" />
-          </div>
-          <span className="text-[9px] uppercase tracking-[0.2em] font-mono text-sky-400/70">
-            Silenciosa
-          </span>
-        </motion.div>
-
-        <motion.div
-          animate={{ y: [0, 15, 0], opacity: [0.2, 0.4, 0.2] }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 0.5,
-          }}
-          className="absolute top-[85%] right-[10%] md:right-[25%] flex flex-col items-center gap-2 opacity-30 select-none"
-        >
-          <div className="w-10 h-10 rounded-full border border-[#d4af37]/20 flex items-center justify-center bg-[#d4af37]/5 backdrop-blur-sm">
-            <Globe2 className="w-4 h-4 text-[#d4af37]" />
-          </div>
-          <span className="text-[9px] uppercase tracking-[0.2em] font-mono text-[#a8a192]">
-            Sustentável
-          </span>
-        </motion.div>
-      </div>
+      {/* Decorative Floating Background Elements Removed */}
 
       {/* Faixa Branca do Cabeçalho - Largura Total */}
       {!selectedMoto && (
-        <header className="w-full bg-white border-b border-stone-200 py-5 px-4 relative z-20 shadow-md">
-          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        <header className="w-full bg-white border-b border-stone-200 py-3 px-4 relative z-20 shadow-sm">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Logo e Nome da Marca */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
               {activeLogo ? (
                 <img
                   src={activeLogo}
                   alt="Volt Motors Logo"
-                  className="w-24 h-24 md:w-32 md:h-32 object-contain block mx-auto mix-blend-multiply filter contrast-125 brightness-105 saturate-150"
+                  className="w-16 h-16 md:w-20 md:h-20 object-contain block mx-auto mix-blend-multiply filter brightness-150 contrast-125"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-stone-950 flex items-center justify-center shadow-lg mx-auto">
-                  <span className="text-[#d4af37] font-serif font-black text-2xl italic">
+                <div className="w-12 h-12 rounded-xl bg-stone-950 flex items-center justify-center shadow-md mx-auto">
+                  <span className="text-[#d4af37] font-serif font-black text-xl italic">
                     V
                   </span>
                 </div>
               )}
               <div>
-                <span className="block text-xl font-mono font-black tracking-[0.25em] text-stone-900 uppercase">
+                <span className="block text-lg md:text-xl font-mono font-black tracking-[0.2em] text-stone-900 uppercase">
                   VOLT MOTORS
                 </span>
-                <span className="block text-[10px] font-mono tracking-widest text-[#a8a192] uppercase mt-1">
+                <span className="block text-[9px] md:text-[10px] font-mono tracking-widest text-[#a8a192] uppercase mt-0.5">
                   Mobilidade Elétrica & Inovação
                 </span>
               </div>
             </div>
 
             {/* Vertical Divider (Visible on desktop) */}
-            <div className="hidden md:block w-[1px] h-14 bg-stone-200" />
+            <div className="hidden md:block w-[1px] h-10 bg-stone-200" />
 
             {/* Endereço e Contatos das Lojas */}
-            <div className="flex flex-col gap-4 text-center md:text-left text-stone-800 font-sans w-full md:w-auto mt-4 md:mt-0">
+            <div className="flex flex-col gap-2.5 text-center md:text-left text-stone-800 font-sans w-full md:w-auto mt-2 md:mt-0">
               {/* Matriz Address */}
-              <div className="flex items-start gap-4 justify-center md:justify-start text-left">
-                <div className="p-2.5 border border-stone-200/60 bg-stone-50 rounded-full shrink-0 shadow-sm">
-                  <MapPin className="w-5 h-5 text-stone-700" />
+              <div className="flex items-center gap-3 justify-center md:justify-start text-left">
+                <div className="p-1.5 border border-stone-200/60 bg-stone-50 rounded-full shrink-0 shadow-sm hidden sm:block">
+                  <MapPin className="w-3.5 h-3.5 text-stone-700" />
                 </div>
-                <div>
-                  <span className="block text-[9px] font-sans tracking-widest text-stone-500 uppercase font-black mb-1">
-                    LOCALIZAÇÃO — MATRIZ
-                  </span>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                  <div>
+                    <span className="block text-[8px] font-sans tracking-widest text-stone-500 uppercase font-bold sm:mb-0.5">
+                      MATRIZ
+                    </span>
+                    <p className="font-medium text-stone-800 text-xs tracking-tight">
+                      Av. Rui Barbosa, 819 - Patrocínio, MG
+                    </p>
+                  </div>
                   <a
                     href="https://www.google.com/maps/search/?api=1&query=Av.+Rui+Barbosa,+819,+Patrocínio,+Minas+Gerais"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group block"
+                    className="inline-flex items-center gap-1 text-[8px] uppercase tracking-widest font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded-md transition-colors border border-amber-200/60 mt-1 sm:mt-0 self-center hidden sm:flex"
                   >
-                    <p className="font-semibold text-stone-800 text-sm tracking-tight group-hover:text-amber-600 transition-colors">
-                      Av. Rui Barbosa, 819
-                    </p>
-                    <p className="text-stone-500 text-[10px] uppercase tracking-wider group-hover:text-amber-600/70 transition-colors mb-2">
-                      Patrocínio, Minas Gerais
-                    </p>
-                    <div className="inline-flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-bold text-amber-700 bg-amber-50 group-hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors border border-amber-200/60">
-                      <MapPin className="w-3 h-3" />
-                      Abrir no Maps
-                    </div>
+                    <MapPin className="w-2.5 h-2.5" />
+                    Maps
                   </a>
                 </div>
               </div>
 
               {/* Email & Contact Rows */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center md:justify-start border-t border-stone-100 pt-4">
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-5 justify-center md:justify-start pt-1">
                 {/* E-mail */}
-                <div className="flex items-center gap-2.5">
-                  <Mail className="w-3.5 h-3.5 text-stone-400" />
+                <div className="flex items-center gap-1.5 hidden sm:flex">
+                  <Mail className="w-3 h-3 text-stone-400" />
                   <a
                     href="mailto:volttransportes@yahoo.com"
-                    className="text-[10px] text-stone-600 font-medium hover:text-stone-900 transition-colors"
+                    className="text-[9px] text-stone-600 font-medium hover:text-stone-900 transition-colors"
                   >
                     volttransportes@yahoo.com
                   </a>
                 </div>
 
                 {/* WhatsApp Contacts */}
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-3 text-[10px] font-mono font-bold uppercase tracking-widest text-[#25d366]">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-2 text-[9px] font-mono font-bold uppercase tracking-wider text-[#25d366]">
                     <a
                       href="https://wa.me/5534997416132?text=Olá Bruno, tenho interesse em um veículo do showroom."
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 hover:bg-[#25d366]/10 px-3 py-1.5 rounded-lg transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
+                      className="flex items-center gap-1.5 hover:bg-[#25d366]/10 px-2.5 py-1 rounded-md transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
                     >
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
+                      <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
                       </svg>
                       Bruno
@@ -736,9 +661,9 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                       href="https://wa.me/5534993343463?text=Olá Fabiano, tenho interesse em um veículo do showroom."
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 hover:bg-[#25d366]/10 px-3 py-1.5 rounded-lg transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
+                      className="flex items-center gap-1.5 hover:bg-[#25d366]/10 px-2.5 py-1 rounded-md transition-colors border border-[#25d366]/30 bg-[#25d366]/5"
                     >
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
+                      <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
                       </svg>
                       Fabiano
@@ -1027,18 +952,18 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
               )}
 
               {/* Price Callout */}
-              <div className="mt-8 pt-6 border-t border-[#2e261a]/60">
+              <div className="mt-10 pt-8 border-t border-[#2e261a]/60">
                 <span className="text-[10px] uppercase text-stone-500 tracking-widest font-mono">
                   Valor especial sob consulta
                 </span>
-                <div className="text-4xl font-serif font-black text-white mt-1 select-all tracking-wide">
+                <div className="text-5xl font-serif font-black text-white mt-3 mb-1 select-all tracking-wide">
                   {selectedMoto.price.toLocaleString("pt-BR", {
                     style: "currency",
                     currency: "BRL",
                   })}
                 </div>
                 {selectedMoto.installments && (
-                  <div className="text-xl font-mono font-extrabold text-[#d4af37] mt-2 flex items-center gap-1.5">
+                  <div className="text-lg font-mono font-extrabold text-[#d4af37] mt-2 flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37] animate-ping" />
                     {selectedMoto.installments}
                   </div>
@@ -1062,7 +987,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
                   <Zap className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
-                    <span className="block text-[8px] text-stone-500 font-mono uppercase tracking-wider">
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
                       Potência de Saída
                     </span>
                     <span className="text-sm sm:text-base font-serif font-black text-white uppercase mt-0.5 block leading-tight break-words">
@@ -1076,39 +1001,11 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                   </div>
                 </div>
 
-                {/* Combustível */}
-                <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
-                  <Fuel className="w-6 h-6 text-[#d4af37]" />
-                  <div className="mt-4">
-                    <span className="block text-[8px] text-stone-500 font-mono uppercase tracking-wider">
-                      Alimentação
-                    </span>
-                    <span
-                      className="text-sm sm:text-base font-serif font-black text-white uppercase mt-0.5 block leading-tight break-words"
-                      title={
-                        selectedMoto.fuel ||
-                        getMotoSpecifications(
-                          selectedMoto.name,
-                          selectedMoto.brand,
-                          selectedMoto.fuel,
-                        ).fuel
-                      }
-                    >
-                      {selectedMoto.fuel ||
-                        getMotoSpecifications(
-                          selectedMoto.name,
-                          selectedMoto.brand,
-                          selectedMoto.fuel,
-                        ).fuel}
-                    </span>
-                  </div>
-                </div>
-
                 {/* Velocidade Máx */}
                 <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
                   <Gauge className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
-                    <span className="block text-[8px] text-stone-500 font-mono uppercase tracking-wider">
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
                       Velocidade Máxima
                     </span>
                     <span className="text-sm sm:text-base font-serif font-black text-white uppercase mt-0.5 block leading-tight break-words">
@@ -1126,7 +1023,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                 <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
                   <Disc className="w-6 h-6 text-[#d4af37]" />
                   <div className="mt-4">
-                    <span className="block text-[8px] text-stone-500 font-mono uppercase tracking-wider">
+                    <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
                       Transmissão
                     </span>
                     <span className="text-sm sm:text-base font-serif font-black text-white uppercase mt-0.5 block leading-tight break-words">
@@ -1140,6 +1037,21 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                     </span>
                   </div>
                 </div>
+
+                {/* Tipo de Bateria */}
+                {selectedMoto.batteryType && (
+                    <div className="bg-[#121212] border border-[#2e261a]/70 p-4.5 rounded-2xl flex flex-col justify-between shadow-lg hover:border-[#d4af37]/30 transition-colors">
+                      <BatteryCharging className="w-6 h-6 text-[#d4af37]" />
+                      <div className="mt-4">
+                        <span className="block text-[10px] text-stone-500 font-mono uppercase tracking-wider">
+                          Tipo de Bateria
+                        </span>
+                        <span className="text-sm sm:text-base font-serif font-black text-white uppercase mt-0.5 block leading-tight break-words">
+                          {selectedMoto.batteryType}
+                        </span>
+                      </div>
+                    </div>
+                )}
               </div>
             </div>
 

@@ -36,26 +36,26 @@ export default function ProfessionalFooter({ className = "", isLight = false }: 
         <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/40 to-transparent mx-auto"></div>
 
         {/* Corporate S.A. Info */}
-        <div id="corporate-info" className="space-y-1">
+        <div id="corporate-info" className="space-y-3">
           <p className={`text-xs font-bold font-serif tracking-wide ${isLight ? "text-stone-900" : "text-white"}`}>
             VOLT TRANSPORTES ELÉTRICOS E IMPORTAÇÕES
           </p>
-          <p className="text-[10px] font-mono font-medium tracking-wide">
+          <p className="text-[11px] font-mono font-medium tracking-wide">
             CNPJ: <span className="font-bold select-all">63.586.302/0001-03</span>
           </p>
-          <p className="text-[10px] font-sans leading-tight">
+          <p className="text-[11px] font-sans leading-tight">
             Avenida Rui Barbosa, 819 — Patrocínio, MG
           </p>
-          <p className="text-[9px] text-stone-550 opacity-80 mt-1.5 uppercase font-mono tracking-widest">
+          <p className="text-[10px] text-stone-500 mt-4 uppercase font-mono tracking-widest">
             © 2026 Volt Motors. Todos os direitos reservados.
           </p>
         </div>
 
         {/* Separador Elegant */}
-        <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/20 to-transparent mx-auto"></div>
+        <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/30 to-transparent mx-auto my-2"></div>
 
         {/* Creator / Developer Credits (Mafran Souza Junior) */}
-        <div id="developer-credits" className="space-y-0.5 pt-1 opacity-60">
+        <div id="developer-credits" className="space-y-1.5 pt-2 opacity-70">
           <p className="text-[7px] font-sans text-stone-500 uppercase tracking-widest">
             Desenvolvido por
           </p>

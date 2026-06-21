@@ -62,6 +62,7 @@ export interface ShowroomMotorcycle {
   fuel?: string;
   power?: string;
   speed?: string;
+  batteryType?: string;
   color?: string; // Main backward compability color (could be the first variant)
   photoBase64?: string; // Main backward compability photo
   gallery?: string[]; // Main backward compatibility gallery

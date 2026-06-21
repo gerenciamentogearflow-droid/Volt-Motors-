@@ -10,13 +10,17 @@ interface DevDashboardProps {
   users: User[];
   saveUsers: (users: User[]) => void;
   onResetSales: () => void;
+  isMaintenanceMode?: boolean;
+  toggleMaintenanceMode?: (state: boolean) => void;
 }
 
 export default function DevDashboard({ 
   handleLogout, 
   users, 
   saveUsers,
-  onResetSales
+  onResetSales,
+  isMaintenanceMode = false,
+  toggleMaintenanceMode
 }: DevDashboardProps) {
   const [newUserName, setNewUserName] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
@@ -259,6 +263,34 @@ export default function DevDashboard({
           {/* FOLDER: CONFIGURAÇÕES DO SISTEMA */}
           <div className="bg-stone-50 border border-stone-200 rounded-3xl overflow-hidden mt-4 shadow-sm">
             <div className="p-6">
+              
+              {/* Maintenance Toggle */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-8 border-b border-stone-200">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-full border ${isMaintenanceMode ? 'bg-amber-100 border-amber-200 text-amber-600' : 'bg-green-100 border-green-200 text-green-600'}`}>
+                    {isMaintenanceMode ? <Trash2 className="w-5 h-5 hidden" /> : <Trash2 className="w-5 h-5 hidden" />}
+                    <div className="w-5 h-5 flex items-center justify-center font-bold font-serif text-lg">!</div>
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-mono text-stone-900 uppercase tracking-widest font-bold">Status do Showroom Público</h2>
+                    <p className="text-xs text-stone-500 font-semibold mt-1 max-w-sm">
+                      {isMaintenanceMode ? "O site está ATUALMENTE OFFLINE para visitantes." : "O site está ATUALMENTE ONLINE para visitantes."}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggleMaintenanceMode?.(!isMaintenanceMode)}
+                  className={`w-full sm:w-auto px-6 py-3 font-bold text-xs uppercase tracking-widest rounded-xl transition-all border cursor-pointer shadow-sm ${
+                    isMaintenanceMode 
+                      ? 'bg-green-600 hover:bg-green-700 text-white border-green-700' 
+                      : 'bg-stone-900 hover:bg-stone-800 text-white border-stone-950'
+                  }`}
+                >
+                  {isMaintenanceMode ? "Colocar Site No Ar" : "Tirar Site do Ar"}
+                </button>
+              </div>
+
+              {/* Reset Database */}
               <div className="flex items-center gap-4 mb-6">
                  <div className="p-3 bg-red-100 rounded-full border border-red-200 text-red-655">
                     <Trash2 className="w-5 h-5 text-red-600" />

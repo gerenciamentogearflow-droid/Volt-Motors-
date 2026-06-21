@@ -230,6 +230,7 @@ export default function ShowroomManagementModal({
         fuel: editingMoto.fuel || "Energia",
         power: editingMoto.power || "",
         speed: editingMoto.speed || "",
+        batteryType: editingMoto.batteryType || "",
         color: hasVariants ? "" : editingMoto.color || "",
         photoBase64: hasVariants ? "" : editingMoto.photoBase64 || "",
         gallery: hasVariants ? [] : editingMoto.gallery || [],
@@ -685,23 +686,25 @@ export default function ShowroomManagementModal({
                       className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:border-stone-900 focus:ring-1 focus:ring-stone-900 outline-none mb-4"
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
-                        Combustível
+                        Tipo de Bateria
                       </label>
-                      <input
-                        type="text"
-                        placeholder="Ex: Energia, Gasolina, etc."
-                        value={editingMoto.fuel || ""}
+                      <select
+                        value={editingMoto.batteryType || ""}
                         onChange={(e) =>
                           setEditingMoto({
                             ...editingMoto,
-                            fuel: e.target.value,
+                            batteryType: e.target.value,
                           })
                         }
                         className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2.5 text-sm focus:border-stone-900 focus:ring-1 focus:ring-stone-900 outline-none"
-                      />
+                      >
+                        <option value="">Não informado</option>
+                        <option value="Lítio">Bateria de Lítio</option>
+                        <option value="Chumbo">Bateria de Chumbo</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-stone-600 mb-1.5 uppercase tracking-wide">
@@ -853,7 +856,7 @@ export default function ShowroomManagementModal({
                         </h3>
                       </div>
                       <p className="text-sm font-medium text-stone-500 mb-2">
-                        {moto.year} • {moto.mileage} km • {moto.fuel}
+                        {moto.year} • {moto.mileage} km
                       </p>
                       <div className="font-extrabold text-lg text-[#ea1d24] mb-3">
                         {moto.price.toLocaleString("pt-BR", {
