@@ -426,7 +426,14 @@ function MotoListItemCard({
 }
 
 export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
-  const [motorcycles, setMotorcycles] = useState<ShowroomMotorcycle[]>([]);
+  const [motorcycles, setMotorcycles] = useState<ShowroomMotorcycle[]>(() => {
+    try {
+      const saved = localStorage.getItem("volt_motors_showroom_cached");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [loading, setLoading] = useState(true);
   const [selectedMoto, setSelectedMoto] = useState<ShowroomMotorcycle | null>(
     null,
@@ -476,6 +483,7 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
       setTouchEnd(null);
       return;
     }
+    const minSwipeDistance = 50;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
@@ -506,16 +514,23 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
         data.push({ id: doc.id, ...doc.data() } as ShowroomMotorcycle);
       });
       // Sort by newest and only available
-      setMotorcycles(
-        data
-          .filter((m) => m.status === "available")
-          .sort((a, b) => {
-            const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
-            const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
-            if (orderA !== orderB) return orderA - orderB;
-            return b.createdAt - a.createdAt;
-          }),
-      );
+      const sorted = data
+        .filter((m) => m.status === "available")
+        .sort((a, b) => {
+          const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+          const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+          if (orderA !== orderB) return orderA - orderB;
+          return b.createdAt - a.createdAt;
+        });
+      setMotorcycles(sorted);
+      try {
+        localStorage.setItem("volt_motors_showroom_cached", JSON.stringify(sorted));
+      } catch (e) {
+        console.error("Erro ao salvar cache do showroom:", e);
+      }
+      setLoading(false);
+    }, (error) => {
+      console.warn("Erro ao carregar showroom em tempo real do Firestore - usando local cache backup:", error);
       setLoading(false);
     });
 
@@ -581,6 +596,12 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                   src={activeLogo}
                   alt="Volt Motors Logo"
                   className="w-16 h-16 md:w-20 md:h-20 object-contain block mx-auto mix-blend-multiply filter brightness-150 contrast-125"
+                  onError={(e) => {
+                    const imgEl = e.currentTarget;
+                    if (imgEl.src !== window.location.origin + "/logo.jpg" && imgEl.src !== "/logo.jpg") {
+                      imgEl.src = "/logo.jpg";
+                    }
+                  }}
                 />
               ) : (
                 <div className="w-12 h-12 rounded-xl bg-stone-950 flex items-center justify-center shadow-md mx-auto">
@@ -685,9 +706,9 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
           /* SHOWROOM PRINCIPAL - DESIGN DE ALTO PADRÃO COM TEMA ESCURO E LUZES QUENTES */
           <motion.div
             key="list"
-            initial={{ opacity: 0, filter: "blur(4px)" }}
-            animate={{ opacity: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, filter: "blur(4px)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="w-full min-h-[calc(100vh-120px)] flex flex-col relative z-10 pt-8"
           >
@@ -764,9 +785,9 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
           /* DETALHE DO VEÍCULO - ESTILO MODERN COM TEMA ESCURO E LUZES QUENTES */
           <motion.div
             key="detail"
-            initial={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.98, filter: "blur(4px)" }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.4 }}
             className="w-full max-w-lg mx-auto flex flex-col min-h-screen relative z-10"
           >
@@ -821,18 +842,6 @@ export default function PublicShowroom({ activeLogo }: { activeLogo: string }) {
                     {currentPhotoSrc ? (
                       <>
                         <AnimatePresence>
-                          {/* Blurred Background Layer to fill letterboxing */}
-                          <motion.img
-                            key={`bg-${currentGalleryIndex}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.5 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.8 }}
-                            src={currentPhotoSrc}
-                            alt=""
-                            className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 saturate-150"
-                          />
-
                           {/* Main Image Layer */}
                           <motion.img
                             key={currentGalleryIndex}

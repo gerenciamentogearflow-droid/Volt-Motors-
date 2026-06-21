@@ -28,7 +28,14 @@ interface ShowroomManagementModalProps {
 export default function ShowroomManagementModal({
   onClose,
 }: ShowroomManagementModalProps) {
-  const [motorcycles, setMotorcycles] = useState<ShowroomMotorcycle[]>([]);
+  const [motorcycles, setMotorcycles] = useState<ShowroomMotorcycle[]>(() => {
+    try {
+      const saved = localStorage.getItem("volt_motors_showroom_cached_all");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [loading, setLoading] = useState(true);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -50,14 +57,21 @@ export default function ShowroomManagementModal({
       snapshot.forEach((doc) => {
         data.push({ id: doc.id, ...doc.data() } as ShowroomMotorcycle);
       });
-      setMotorcycles(
-        data.sort((a, b) => {
-          const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
-          const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
-          if (orderA !== orderB) return orderA - orderB;
-          return b.createdAt - a.createdAt;
-        })
-      );
+      const sorted = data.sort((a, b) => {
+        const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+        const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+        if (orderA !== orderB) return orderA - orderB;
+        return b.createdAt - a.createdAt;
+      });
+      setMotorcycles(sorted);
+      try {
+        localStorage.setItem("volt_motors_showroom_cached_all", JSON.stringify(sorted));
+      } catch (e) {
+        console.error("Erro ao salvar cache completo do showroom:", e);
+      }
+      setLoading(false);
+    }, (error) => {
+      console.warn("Erro ao ouvir coleção showroom do Firestore - utilizando backup local do painel:", error);
       setLoading(false);
     });
     return () => unsubscribe();

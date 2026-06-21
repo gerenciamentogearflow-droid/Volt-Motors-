@@ -235,15 +235,27 @@ export default function App() {
   });
 
   // --- SYNC WITH FIREBASE (SYSTEM SETTINGS) ---
-  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem("volt_motors_maintenance_mode");
+      return saved ? JSON.parse(saved) === true : false;
+    } catch {
+      return false;
+    }
+  });
+
   useEffect(() => {
     import("firebase/firestore").then(({ doc, onSnapshot }) => {
       const systemDocRef = doc(db, "settings", "system");
       const unsubscribeSystem = onSnapshot(systemDocRef, (snap) => {
         if (snap.exists()) {
           const data = snap.data();
-          setIsMaintenanceMode(!!data.isMaintenanceMode);
+          const mode = !!data.isMaintenanceMode;
+          setIsMaintenanceMode(mode);
+          localStorage.setItem("volt_motors_maintenance_mode", JSON.stringify(mode));
         }
+      }, (error) => {
+        console.warn("Erro ao ouvir status do servidor - utilizando backup local do modo manutenção:", error);
       });
       return () => unsubscribeSystem();
     });
@@ -568,9 +580,18 @@ export default function App() {
     if (isMaintenanceMode && !loggedInUser?.isDev && loggedInUser?.role !== 'owner') {
       return (
         <div className="flex flex-col items-center justify-center min-h-[100dvh] bg-stone-950 text-[#f4efe6] p-6 text-center">
-          <div className="w-24 h-24 mb-8 border border-stone-800 rounded-full flex items-center justify-center bg-stone-900 shadow-xl p-4">
+          <div className="w-24 h-24 mb-8 border border-stone-800 rounded-full flex items-center justify-center bg-stone-900 shadow-xl p-2 overflow-hidden">
             {activeLogo ? (
-              <img src={activeLogo} alt="Volt Motors" className="w-full h-full object-contain brightness-125 filter" />
+              <img 
+                src={activeLogo} 
+                alt="Volt Motors" 
+                className="w-full h-full object-cover mix-blend-multiply filter brightness-[1.05] contrast-125" 
+                onError={() => {
+                  if (activeLogo !== "/logo.jpg") {
+                    setActiveLogo("/logo.jpg");
+                  }
+                }}
+              />
             ) : (
               <Layers className="w-8 h-8 text-amber-500" />
             )}
@@ -694,8 +715,12 @@ export default function App() {
                       src={activeLogo}
                       alt="Volt Motors Logo"
                       referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover"
-                      onError={() => setActiveLogo("")}
+                      className="w-full h-full object-cover mix-blend-multiply filter contrast-125 brightness-[1.05]"
+                      onError={() => {
+                        if (activeLogo !== "/logo.jpg") {
+                          setActiveLogo("/logo.jpg");
+                        }
+                      }}
                     />
                   </div>
                 ) : (
