@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { FileText, LogOut, Wrench, Share2 } from "lucide-react";
-import { Contract, MaintenanceReminder } from "../types";
+import { Contract, MaintenanceReminder, User } from "../types";
 import ContractModal from "./ContractModal";
 import MaintenanceModal from "./MaintenanceModal";
 import ShowroomManagementModal from "./ShowroomManagementModal";
 
 interface SellerDashboardProps {
   handleLogout: () => void;
-  user: { name: string; email: string; branchName?: string; password?: string };
+  user: User;
   contracts: Contract[];
   saveContracts: (contracts: Contract[]) => void;
   maintenanceReminders: MaintenanceReminder[];
@@ -156,7 +156,7 @@ export default function SellerDashboard({
         )}
 
         {showShowroomConfig && (
-          <ShowroomManagementModal onClose={() => setShowShowroomConfig(false)} />
+          <ShowroomManagementModal user={user} onClose={() => setShowShowroomConfig(false)} />
         )}
       </AnimatePresence>
 

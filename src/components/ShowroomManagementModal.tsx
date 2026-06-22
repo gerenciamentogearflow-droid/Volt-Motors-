@@ -6,9 +6,8 @@ import {
   setDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
-import { auth, db, handleFirestoreError, OperationType } from "../lib/firebase";
-import { ShowroomMotorcycle } from "../types";
+import { db, handleFirestoreError, OperationType } from "../lib/firebase";
+import { ShowroomMotorcycle, User } from "../types";
 import { motion } from "motion/react";
 import {
   X,
@@ -23,10 +22,12 @@ import {
 
 interface ShowroomManagementModalProps {
   onClose: () => void;
+  user: User;
 }
 
 export default function ShowroomManagementModal({
   onClose,
+  user,
 }: ShowroomManagementModalProps) {
   const [motorcycles, setMotorcycles] = useState<ShowroomMotorcycle[]>(() => {
     try {
@@ -286,9 +287,15 @@ export default function ShowroomManagementModal({
   const confirmDelete = async () => {
     if (!motoToDeleteId) return;
 
-    const currentUser = auth.currentUser;
-    if (!currentUser || !currentUser.email) {
+    if (!user) {
       setDeleteError("Usuário não autenticado.");
+      return;
+    }
+
+    const SYSTEM_ACCESS_PASSWORD = user.password || "728";
+
+    if (deletePassword !== SYSTEM_ACCESS_PASSWORD) {
+      setDeleteError("Senha incorreta.");
       return;
     }
 
@@ -296,20 +303,13 @@ export default function ShowroomManagementModal({
     setDeleteError("");
 
     try {
-      const credential = EmailAuthProvider.credential(currentUser.email, deletePassword);
-      await reauthenticateWithCredential(currentUser, credential);
-      
       await deleteDoc(doc(db, "showroom", motoToDeleteId));
       
       setMotoToDeleteId(null);
       setDeletePassword("");
     } catch (error: any) {
-      if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        setDeleteError("Senha incorreta.");
-      } else {
-        setDeleteError("Erro ao autenticar a senha. Tente novamente.");
-        handleFirestoreError(error, OperationType.DELETE, "showroom");
-      }
+      setDeleteError("Erro ao excluir. Tente novamente.");
+      handleFirestoreError(error, OperationType.DELETE, "showroom");
     } finally {
       setIsDeleting(false);
     }

@@ -10,7 +10,7 @@ import ShowroomManagementModal from "./ShowroomManagementModal";
 
 interface OwnerDashboardProps {
   handleLogout: () => void;
-  user: { name: string; email: string; branchName?: string; password?: string };
+  user: User;
   contracts: Contract[];
   saveContracts: (contracts: Contract[]) => void;
   serviceReceipts: ServiceReceipt[];
@@ -298,7 +298,7 @@ export default function OwnerDashboard({
         )}
 
         {showShowroomConfig && (
-          <ShowroomManagementModal onClose={() => setShowShowroomConfig(false)} />
+          <ShowroomManagementModal user={user} onClose={() => setShowShowroomConfig(false)} />
         )}
       </AnimatePresence>
 
